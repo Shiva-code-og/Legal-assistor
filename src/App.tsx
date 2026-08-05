@@ -12,6 +12,7 @@ import { DocumentsPage } from "./components/DocumentsPage";
 import { SettingsPage } from "./components/SettingsPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { CaseData, UserProfile, DisputeType } from "./types";
+import { upsertUserProfile, saveCaseToSupabase, fetchUserCasesFromSupabase } from "./lib/supabase";
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -127,11 +128,34 @@ export default function App() {
     setSelectedCase(newCase);
     setAnalyzing(false);
     setActiveTab("result");
+    // Persist new case to Supabase
+    saveCaseToSupabase(newCase, user.email);
   };
 
   const handleCampaignActivated = (updatedCase: CaseData) => {
     setCases(cases.map(c => c.caseId === updatedCase.caseId ? updatedCase : c));
     setSelectedCase(updatedCase);
+    // Update case status in Supabase
+    saveCaseToSupabase(updatedCase, user.email);
+  };
+
+  const handleUserLogin = async (loggedInUser: UserProfile) => {
+    setUser(loggedInUser);
+    setIsAuthenticated(true);
+    setShowAuthModal(false);
+    // 1. Sync user profile details to Supabase database
+    upsertUserProfile(loggedInUser);
+
+    // 2. Fetch existing cases from Supabase if available
+    const remoteCases = await fetchUserCasesFromSupabase(loggedInUser.email);
+    if (remoteCases && remoteCases.length > 0) {
+      setCases(remoteCases);
+    }
+  };
+
+  const handleUserUpdate = (updatedUser: UserProfile) => {
+    setUser(updatedUser);
+    upsertUserProfile(updatedUser);
   };
 
   // If not authenticated, show landing page & auth modal
@@ -149,11 +173,7 @@ export default function App() {
         <AuthModal
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
-          onLogin={(loggedInUser) => {
-            setUser(loggedInUser);
-            setIsAuthenticated(true);
-            setShowAuthModal(false);
-          }}
+          onLogin={handleUserLogin}
         />
       </>
     );
@@ -230,9 +250,9 @@ export default function App() {
           ) : activeTab === "documents" ? (
             <DocumentsPage cases={cases} />
           ) : activeTab === "settings" ? (
-            <SettingsPage user={user} onUpdateUser={setUser} />
+            <SettingsPage user={user} onUpdateUser={handleUserUpdate} />
           ) : activeTab === "profile" ? (
-            <ProfilePage user={user} onUpdateUser={setUser} />
+            <ProfilePage user={user} onUpdateUser={handleUserUpdate} />
           ) : activeTab === "result" && selectedCase ? (
             <ResultPage
               caseData={selectedCase}
