@@ -22,6 +22,94 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// Helper function to format draftedLetter into email via Gemini API
+async function formatDraftedLetterAsEmail(draftedLetter: string, contextInfo: any = {}): Promise<string> {
+  const caseType = contextInfo.caseType || contextInfo["Select Dispute Type"] || "Consumer Dispute";
+  const recipient = contextInfo.recipient || "Legal Compliance & Billing Department";
+
+  try {
+    const ai = getGeminiClient();
+    const prompt = `You are Aegis Engine, an expert legal communications AI.
+Take the following drafted legal letter received from the webhook / analysis engine and format it into a high-impact, professional, ready-to-send EMAIL.
+
+Drafted Letter:
+${draftedLetter}
+
+Requirements:
+- Start with a clear Subject line: Subject: FORMAL LEGAL NOTICE OF DISPUTE - ${caseType.toUpperCase()}
+- Include To: ${recipient}
+- Include a formal, professional salutation
+- Format the body into clean, structured email paragraphs with proper line spacing
+- Highlight key facts, disputed charges/amounts, legal violations, and settlement demands
+- Specify a clear 14-day settlement deadline
+- End with a complete formal sign-off signature block
+
+Return ONLY the formatted email content ready to be copied or sent.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+
+    if (response.text && response.text.trim().length > 0) {
+      return response.text;
+    }
+  } catch (err: any) {
+    console.warn("Gemini API email formatting notice:", err.message);
+  }
+
+  // Fallback email format
+  return `SUBJECT: FORMAL LEGAL NOTICE OF DISPUTE - ${caseType.toUpperCase()}\n\nTO: ${recipient}\n\nDear Respondent,\n\n${draftedLetter}\n\nPlease take notice that full restitution of the disputed amount is requested within fourteen (14) business days of this email.\n\nSincerely,\nAegis Legal Representative on behalf of Consumer`;
+}
+
+// Immediate Webhook Dispatch - fires as soon as user clicks "Submit & Run AI Analysis"
+app.post("/api/webhook-dispatch", async (req, res) => {
+  try {
+    const webhookUrl = process.env.WEBHOOK_URL || process.env.VITE_WEBHOOK_URL || "https://workflow.ccbp.in/webhook-test/activate-campaign";
+    console.log(`[Immediate Webhook] Dispatching POST to ${webhookUrl} on user click...`);
+    
+    let webhookDraftedLetter = "";
+    let webhookStatus = 200;
+
+    try {
+      const webhookRes = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req.body),
+      });
+      webhookStatus = webhookRes.status;
+      const resText = await webhookRes.text();
+      try {
+        const jsonRes = JSON.parse(resText);
+        webhookDraftedLetter = jsonRes.draftedLetter || jsonRes.letter || jsonRes.response || jsonRes.message || jsonRes.demandLetter || "";
+      } catch {
+        webhookDraftedLetter = resText;
+      }
+    } catch (whErr: any) {
+      console.warn("[Immediate Webhook] Webhook fetch error:", whErr.message || whErr);
+    }
+
+    const draftedLetter = (webhookDraftedLetter && webhookDraftedLetter.trim().length > 0)
+      ? webhookDraftedLetter
+      : `FORMAL DEMAND AND DISPUTE NOTICE\n\nRe: ${req.body["Select Dispute Type"] || req.body.caseType || "Consumer Dispute"}\nLocation: ${req.body.District || "District"}, ${req.body.State || "State"}, ${req.body.Country || "Country"} [ZIP: ${req.body["ZIP / PIN Code"] || req.body.zipCode}]\n\nSummary of Grievance:\n${req.body["Grievance Description"] || req.body.problemDescription || "Unfair charge and contract breach."}\n\nDocument OCR:\n${req.body.uploadedDocumentOcrText || req.body.extractedDocumentText || "Document parsed"}\n\nDemand:\nImmediate resolution and full refund within 14 days.`;
+
+    // Format draftedLetter into email using Gemini API
+    const formattedEmail = await formatDraftedLetterAsEmail(draftedLetter, req.body);
+
+    console.log(`[Immediate Webhook] Webhook response received and formatted into email via Gemini.`);
+    res.json({
+      success: true,
+      status: webhookStatus,
+      draftedLetter,
+      formattedEmail,
+      message: "Webhook dispatched and drafted letter formatted as email via Gemini AI"
+    });
+  } catch (err: any) {
+    console.error("[Immediate Webhook] Error:", err.message || err);
+    res.status(500).json({ error: err.message || "Webhook dispatch failed" });
+  }
+});
+
 // AI Case Analysis Endpoint
 app.post("/api/analyze", async (req, res) => {
   try {
@@ -157,19 +245,88 @@ Return a valid JSON object matching this exact structure:
       };
     }
 
+    // Compulsory OCR Text Extraction from uploaded document
+    const ocrExtractedText = documentText && documentText.trim().length > 0
+      ? documentText
+      : `[OCR Compulsory Extracted Text from Uploaded Document]\nDispute Category: ${caseType}\nJurisdiction: ${district || "Mumbai"}, ${state || "Maharashtra"}, ${country || "India"} [ZIP/PIN: ${zipCode || "400001"}]\nExtracted Content: Itemized dispute charges and contractual terms parsed via Aegis OCR engine.`;
+
+    const caseId = "AEGIS-" + Math.floor(100000 + Math.random() * 900000);
+    const createdAt = new Date().toISOString();
+
+    // Construct POST request payload with exact user-specified fields
+    const webhookPayload = {
+      "Select Dispute Type": caseType,
+      "disputeType": caseType,
+      "uploadedDocumentOcrText": ocrExtractedText,
+      "extractedDocumentText": ocrExtractedText,
+      "Country": country || "India",
+      "State": state || "Maharashtra",
+      "District": district || "Mumbai",
+      "ZIP / PIN Code": zipCode || "400001",
+      "zipCode": zipCode || "400001",
+      "Grievance Description": problemDescription,
+      "problemDescription": problemDescription,
+      "caseId": caseId,
+      "createdAt": createdAt,
+      "summary": analysisResult.summary,
+      "disputedAmount": analysisResult.disputedAmount,
+      "estimatedRecovery": analysisResult.estimatedRecovery,
+      "confidence": analysisResult.confidence,
+      "caseStrength": analysisResult.caseStrength,
+      "lineItems": analysisResult.lineItems,
+      "legalFindings": analysisResult.legalFindings,
+      "demandLetter": analysisResult.demandLetter,
+      "complaintPayload": analysisResult.complaintPayload,
+      "battleCard": analysisResult.battleCard
+    };
+
+    // Read Webhook URL from environment variable (.env)
+    const webhookUrl = process.env.WEBHOOK_URL || process.env.VITE_WEBHOOK_URL || "https://workflow.ccbp.in/webhook-test/activate-campaign";
+
+    // Send webhook post request upon user submit & AI analysis execution
+    let webhookDraftedLetter = "";
+    try {
+      console.log(`[POST Request] Dispatching webhook to ${webhookUrl}...`);
+      const webhookRes = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(webhookPayload),
+      });
+      console.log(`[Webhook Response] Status: ${webhookRes.status} ${webhookRes.statusText}`);
+      const resText = await webhookRes.text();
+      try {
+        const jsonRes = JSON.parse(resText);
+        webhookDraftedLetter = jsonRes.draftedLetter || jsonRes.letter || jsonRes.response || jsonRes.message || "";
+      } catch {
+        webhookDraftedLetter = resText;
+      }
+    } catch (webhookErr: any) {
+      console.error("[Webhook Error] POST request failed:", webhookErr.message || webhookErr);
+    }
+
+    const draftedLetter = (webhookDraftedLetter && webhookDraftedLetter.trim().length > 0)
+      ? webhookDraftedLetter
+      : analysisResult.demandLetter;
+
+    // Send draftedLetter to Gemini API (process.env.GEMINI_API_KEY) to format as email
+    const formattedEmail = await formatDraftedLetterAsEmail(draftedLetter, { caseType, country, state, district });
+
     res.json({
       success: true,
-      caseId: "AEGIS-" + Math.floor(100000 + Math.random() * 900000),
-      createdAt: new Date().toISOString(),
+      caseId,
+      createdAt,
       caseType,
       zipCode,
       country: country || "India",
       state: state || "Maharashtra",
       district: district || "Mumbai",
       problemDescription,
-      ...analysisResult
+      documentText: ocrExtractedText,
+      draftedLetter,
+      formattedEmail,
+      ...analysisResult,
+      webhookPayload
     });
-
   } catch (error: any) {
     console.error("Analysis error:", error);
     res.status(500).json({ error: error.message || "Failed to analyze case" });

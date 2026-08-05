@@ -39,6 +39,7 @@ export interface CaseData {
   state?: string;
   district?: string;
   problemDescription: string;
+  documentText?: string;
   summary: string;
   disputedAmount: string;
   estimatedRecovery: string;
@@ -54,6 +55,9 @@ export interface CaseData {
     reliefSought: string;
   };
   battleCard: BattleCardItem[];
+  draftedLetter?: string;
+  formattedEmail?: string;
+  webhookPayload?: Record<string, any>;
   status?: "Draft" | "Pending Review" | "Campaign Active" | "Resolved";
   activatedAt?: string;
 }

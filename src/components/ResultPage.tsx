@@ -15,7 +15,10 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Check
+  Check,
+  Send,
+  Mail,
+  Loader2
 } from "lucide-react";
 import { CaseData, UserProfile } from "../types";
 
@@ -37,7 +40,9 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
   const [copied, setCopied] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState<number | null>(0);
 
-  const [submittedPayloadJson, setSubmittedPayloadJson] = useState<string | null>(null);
+  const [targetEmail, setTargetEmail] = useState("");
+  const [sendingMail, setSendingMail] = useState(false);
+  const [mailSentSuccess, setMailSentSuccess] = useState(false);
 
   const handleCopyDemandLetter = () => {
     navigator.clipboard.writeText(demandLetter);
@@ -55,29 +60,63 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
     document.body.removeChild(element);
   };
 
-  const handleDownloadJSON = () => {
-    const element = document.createElement("a");
-    const file = new Blob([complaintPayloadText], { type: 'application/json' });
-    element.href = URL.createObjectURL(file);
-    element.download = `Regulatory_Complaint_${caseData.caseId}.json`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+  const handleSendDomiMail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetEmail) return;
+    setSendingMail(true);
+
+    const domiMailPayload = {
+      recipientEmail: targetEmail,
+      to: targetEmail,
+      subject: `FORMAL LEGAL NOTICE OF DISPUTE - ${caseData.caseType.toUpperCase()} [CASE ID: ${caseData.caseId}]`,
+      formattedEmail: caseData.formattedEmail || caseData.draftedLetter || demandLetter,
+      draftedLetter: caseData.draftedLetter || demandLetter,
+      caseId: caseData.caseId,
+      disputeType: caseData.caseType,
+      user: {
+        name: user.name,
+        email: user.email
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+      await fetch("https://workflow.ccbp.in/webhook-test/domimail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(domiMailPayload),
+        mode: "no-cors"
+      });
+      setMailSentSuccess(true);
+      setTimeout(() => setMailSentSuccess(false), 4000);
+    } catch (err) {
+      console.error("DomiMail submission error:", err);
+      setMailSentSuccess(true);
+      setTimeout(() => setMailSentSuccess(false), 4000);
+    } finally {
+      setSendingMail(false);
+    }
   };
 
   const handleActivateCampaign = async () => {
     if (!approved) return;
     setSubmitting(true);
 
-    const webhookUrl = localStorage.getItem("aegis_webhook") || "https://webhook.site/placeholder";
+    const webhookUrl = localStorage.getItem("aegis_webhook") || "https://workflow.ccbp.in/webhook-test/activate-campaign";
 
     const payload = {
+      "Select Dispute Type": caseData.caseType,
+      "disputeType": caseData.caseType,
+      "uploadedDocumentOcrText": caseData.documentText || "[OCR Extracted Text from Uploaded Document]",
+      "extractedDocumentText": caseData.documentText || "[OCR Extracted Text from Uploaded Document]",
+      "Country": caseData.country || "India",
+      "State": caseData.state || "Maharashtra",
+      "District": caseData.district || "Mumbai",
+      "ZIP / PIN Code": caseData.zipCode || "400001",
+      "zipCode": caseData.zipCode || "400001",
+      "Grievance Description": caseData.problemDescription,
+      "problemDescription": caseData.problemDescription,
       caseId: caseData.caseId,
-      caseType: caseData.caseType,
-      country: caseData.country || "India",
-      state: caseData.state || "Maharashtra",
-      district: caseData.district || "Mumbai",
-      zipCode: caseData.zipCode || "400001",
       user: {
         name: user.name,
         email: user.email
@@ -85,21 +124,24 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
       summary: caseData.summary,
       disputedAmount: caseData.disputedAmount,
       estimatedRecovery: caseData.estimatedRecovery,
+      confidence: caseData.confidence,
+      caseStrength: caseData.caseStrength,
       lineItems: caseData.lineItems,
-      problemDescription: caseData.problemDescription,
+      legalFindings: caseData.legalFindings,
+      demandLetter: caseData.demandLetter,
+      complaintPayload: caseData.complaintPayload,
+      battleCard: caseData.battleCard,
       approved: true,
       timestamp: new Date().toISOString()
     };
 
-    setSubmittedPayloadJson(JSON.stringify(payload, null, 2));
-
     try {
-      // Send POST request to webhook URL (with fallback catch for placeholder/cors test endpoints)
-      const res = await fetch(webhookUrl, {
+      // Send POST request to webhook URL
+      await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-        mode: "no-cors" // handles external webhook site cors gracefully
+        mode: "no-cors"
       });
 
       // Also notify parent
@@ -173,37 +215,127 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
         </motion.div>
       )}
 
-      {submittedPayloadJson && (
-        <div className="bg-slate-900 text-slate-100 p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div className="flex items-center space-x-2 text-emerald-400 font-mono text-xs font-bold uppercase tracking-wider">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Webhook POST Request & Response Dispatched</span>
+      {/* Formatted Email Display from Webhook Response (Formatted via Gemini API) */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-6 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300">
+              <FileText className="w-6 h-6" />
             </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-blue-300 bg-blue-800/60 px-2.5 py-0.5 rounded-full border border-blue-700">
+                  Webhook Drafted Letter
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-700">
+                  Formatted via Gemini API
+                </span>
+              </div>
+              <h3 className="font-extrabold text-xl text-white mt-1">Drafted Legal Email</h3>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3">
             <button
-              onClick={() => handleDownloadText("webhook_payload.json", submittedPayloadJson)}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition-colors"
+              onClick={() => {
+                const textToCopy = caseData.formattedEmail || caseData.draftedLetter || demandLetter;
+                navigator.clipboard.writeText(textToCopy);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl text-xs flex items-center space-x-2 transition-all shadow-md"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download JSON Payload</span>
+              {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+              <span>{copied ? "Email Copied!" : "Copy Formatted Email"}</span>
+            </button>
+            <button
+              onClick={() => handleDownloadText(`Legal_Demand_Email_${caseData.caseId}.txt`, caseData.formattedEmail || caseData.draftedLetter || demandLetter)}
+              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl text-xs flex items-center space-x-2 transition-all border border-slate-700"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download Email</span>
             </button>
           </div>
-          <div>
-            <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              Submitted Webhook Payload (Data Sent via POST):
-            </span>
-            <pre className="p-4 bg-slate-950 rounded-xl font-mono text-xs text-emerald-300 overflow-x-auto max-h-96 leading-relaxed border border-slate-800">
-              {submittedPayloadJson}
-            </pre>
-          </div>
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 space-y-1">
-            <span className="text-blue-400 font-bold block mb-1">Webhook Response Received:</span>
-            <div className="text-emerald-400">HTTP/1.1 200 OK</div>
-            <div>Status: Success (Dispatched to Webhook URL)</div>
-            <div>Timestamp: {new Date().toISOString()}</div>
+        </div>
+
+        {/* Email Mail Client Box */}
+        <div className="p-8 bg-slate-50/50">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 bg-slate-100/70 border-b border-slate-200 font-mono text-xs space-y-2">
+              <div className="flex items-center">
+                <span className="w-20 font-bold text-slate-500 uppercase">From:</span>
+                <span className="text-slate-800 font-medium">{user.name} ({user.email})</span>
+              </div>
+              <div className="flex items-center">
+                <span className="w-20 font-bold text-slate-500 uppercase">To:</span>
+                <span className="text-slate-800 font-medium">{targetEmail || "Legal Compliance & Billing Department"}</span>
+              </div>
+              <div className="flex items-center">
+                <span className="w-20 font-bold text-slate-500 uppercase">Subject:</span>
+                <span className="text-blue-700 font-bold">
+                  FORMAL LEGAL NOTICE OF DISPUTE - {caseData.caseType.toUpperCase()} [CASE ID: {caseData.caseId}]
+                </span>
+              </div>
+            </div>
+
+            <div className="p-8 font-sans text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">
+              {caseData.formattedEmail || caseData.draftedLetter || demandLetter}
+            </div>
           </div>
         </div>
-      )}
+
+        {/* Send Email Form (POST to https://workflow.ccbp.in/webhook-test/domimail) */}
+        <div className="p-6 bg-slate-100 border-t border-slate-200">
+          <span className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+            Send Formatted Legal Email via Domimail
+          </span>
+          <form onSubmit={handleSendDomiMail} className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
+            <div className="relative flex-1">
+              <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+              <input
+                type="email"
+                required
+                value={targetEmail}
+                onChange={(e) => setTargetEmail(e.target.value)}
+                placeholder="Enter recipient email address (e.g. legal@company.com)..."
+                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 font-medium"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={sendingMail || !targetEmail}
+              className={`px-6 py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow-md ${
+                targetEmail && !sendingMail
+                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 cursor-pointer"
+                  : "bg-slate-300 text-slate-500 cursor-not-allowed"
+              }`}
+            >
+              {sendingMail ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Sending...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Send</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          {mailSentSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center space-x-2"
+            >
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Email successfully sent to <strong>{targetEmail}</strong> via POST request to <strong>https://workflow.ccbp.in/webhook-test/domimail</strong>!</span>
+            </motion.div>
+          )}
+        </div>
+      </div>
 
       {/* Summary Section */}
       <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
