@@ -22,9 +22,9 @@ app.use((req, res, next) => {
 
 // Initialize Gemini client lazily or when requested
 function getGeminiClient() {
-  const apiKey = process.env.GEMINI_API_KEY || "YOUR_GEMINI_API_KEY";
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "YOUR_GEMINI_API_KEY") {
-    return null;
+    throw new Error("GEMINI_API_KEY is not configured. Please set a valid Gemini API key in secrets.");
   }
   return new GoogleGenAI({ apiKey });
 }
@@ -88,7 +88,7 @@ app.post("/api/send-legal-mail", async (req, res) => {
       return res.status(400).json({ error: "mail (email address) and legal draft content are required." });
     }
 
-    const legalMailWebhookUrl = "https://workflow.ccbp.in/webhook/legal-warn";
+    const legalMailWebhookUrl = process.env.LEGAL_MAIL_WEBHOOK_URL || process.env.VITE_LEGAL_MAIL_WEBHOOK_URL || "https://workflow.ccbp.in/webhook/legal-warn";
 
     console.log(`[Legal Mail POST] Dispatching POST to ${legalMailWebhookUrl} for ${mailAddress}...`);
 
@@ -136,9 +136,6 @@ async function formatDraftedLetterAsEmail(draftedLetter: string, contextInfo: an
 
   try {
     const ai = getGeminiClient();
-    if (!ai) {
-      throw new Error("Gemini API key is unconfigured");
-    }
     const prompt = `You are Aegis Engine, an expert legal communications AI.
 Take the following drafted legal letter received from the webhook / analysis engine and format it into a high-impact, professional, ready-to-send EMAIL.
 
@@ -175,7 +172,7 @@ Return ONLY the formatted email content ready to be copied or sent.`;
 // Immediate Webhook Dispatch - fires as soon as user clicks "Submit & Run AI Analysis"
 app.post("/api/webhook-dispatch", async (req, res) => {
   try {
-    const webhookUrl = "https://workflow.ccbp.in/webhook/activate-campaign";
+    const webhookUrl = process.env.WEBHOOK_URL || process.env.VITE_WEBHOOK_URL || "https://workflow.ccbp.in/webhook/activate-campaign";
     console.log(`[Immediate Webhook] Dispatching POST to ${webhookUrl} on user click...`);
     
     let webhookDraftedLetter = "";
@@ -228,9 +225,6 @@ app.post("/api/analyze", async (req, res) => {
 
     try {
       const ai = getGeminiClient();
-      if (!ai) {
-        throw new Error("Gemini API key is unconfigured");
-      }
       const prompt = `You are Aegis Engine, an expert consumer rights lawyer and legal-tech AI.
 Analyze the following consumer dispute case and produce a comprehensive legal defense analysis.
 
@@ -389,7 +383,7 @@ Return a valid JSON object matching this exact structure:
     };
 
     // Read Webhook URL from environment variable (.env)
-    const webhookUrl = "https://workflow.ccbp.in/webhook/activate-campaign";
+    const webhookUrl = process.env.WEBHOOK_URL || process.env.VITE_WEBHOOK_URL || "https://workflow.ccbp.in/webhook/activate-campaign";
 
     // Send webhook post request upon user submit & AI analysis execution
     let webhookDraftedLetter = "";
@@ -440,7 +434,6 @@ async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      configFile: path.resolve(process.cwd(), "configuration/vite.config.ts"),
       server: { middlewareMode: true },
       appType: "spa",
     });

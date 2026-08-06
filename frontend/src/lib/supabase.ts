@@ -1,8 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import { UserProfile, CaseData } from "../types";
 
-export const SUPABASE_URL = "https://maajqghmtappmlhqvbek.supabase.co";
-export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hYWpxZ2htdGFwcG1saHF2YmVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NTE1NDAsImV4cCI6MjEwMTUyNzU0MH0.PaDBdffvi55ftbVkNv4uSQiwd7UuBorSATLtjCq4kUM";
+export const SUPABASE_URL =
+  ((import.meta as any).env?.VITE_SUPABASE_URL as string) ||
+  "https://maajqghmtappmlhqvbek.supabase.co";
+
+export const SUPABASE_ANON_KEY =
+  ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hYWpxZ2htdGFwcG1saHF2YmVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NTE1NDAsImV4cCI6MjEwMTUyNzU0MH0.PaDBdffvi55ftbVkNv4uSQiwd7UuBorSATLtjCq4kUM";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
