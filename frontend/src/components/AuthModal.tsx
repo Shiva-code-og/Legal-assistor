@@ -23,7 +23,7 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
       if ((window as any).google?.accounts?.id) {
         clearInterval(checkGoogleLoaded);
         
-        const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "403082932753-ur3f2gmuqj3vner3tg8bst3vgo0cp2ee.apps.googleusercontent.com";
+        const googleClientId = "403082932753-ur3f2gmuqj3vner3tg8bst3vgo0cp2ee.apps.googleusercontent.com";
         
         (window as any).google.accounts.id.initialize({
           client_id: googleClientId,
