@@ -79,7 +79,8 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
         let dispatchedFormattedEmail = "";
 
         try {
-          const dispatchRes = await fetch("/api/webhook-dispatch", {
+          const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+          const dispatchRes = await fetch(`${apiBase}/api/webhook-dispatch`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(immediateWebhookPayload),
@@ -105,7 +106,8 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
           await new Promise((r) => setTimeout(r, 500));
         }
 
-        const res = await fetch("/api/analyze", {
+        const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+        const res = await fetch(`${apiBase}/api/analyze`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)

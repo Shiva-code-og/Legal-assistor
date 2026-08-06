@@ -81,7 +81,8 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
 
     try {
       // 1. Send via local backend endpoint (proxies POST to https://workflow.ccbp.in/webhook/legal-warn)
-      const res = await fetch("/api/send-legal-mail", {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+      const res = await fetch(`${apiBase}/api/send-legal-mail`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

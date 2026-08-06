@@ -6,6 +6,7 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     root: path.resolve(__dirname, '../frontend'),
+    envDir: path.resolve(__dirname, '../'),
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
