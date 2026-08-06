@@ -287,6 +287,8 @@ Legal-Assister
 │   ├── project3.png
 │   └── project4.png
 │
+├── frontend
+├── backend
 ├── styles
 ├── .env.local
 ├── package.json
