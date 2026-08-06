@@ -3,4 +3,29 @@
 @theme {
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'P22 Mackinac W01 Book', 'Georgia', serif;
+
+  /* Custom theme mapping both violet and blue to deep forest green (#114945) */
+  --color-violet-50: #f0f7f6;
+  --color-violet-100: #dceceb;
+  --color-violet-200: #b9d8d5;
+  --color-violet-300: #8bbcb7;
+  --color-violet-400: #5d9b96;
+  --color-violet-500: #1a5e5a;
+  --color-violet-600: #145551;
+  --color-violet-700: #114945;
+  --color-violet-800: #0e3c39;
+  --color-violet-900: #0c3330;
+  --color-violet-950: #071c1b;
+
+  --color-blue-50: #f0f7f6;
+  --color-blue-100: #dceceb;
+  --color-blue-200: #b9d8d5;
+  --color-blue-300: #8bbcb7;
+  --color-blue-400: #5d9b96;
+  --color-blue-500: #1a5e5a;
+  --color-blue-600: #145551;
+  --color-blue-700: #114945;
+  --color-blue-800: #0e3c39;
+  --color-blue-900: #0c3330;
+  --color-blue-950: #114945;
 }

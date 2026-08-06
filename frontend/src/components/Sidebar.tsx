@@ -25,8 +25,6 @@ export function Sidebar({ activeTab, setActiveTab, user, onLogout }: SidebarProp
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "new-case", label: "New Case", icon: PlusCircle, highlight: true },
-    { id: "cases", label: "Cases", icon: FolderKanban },
-    { id: "campaigns", label: "Campaigns", icon: Zap },
     { id: "documents", label: "Documents", icon: FileText },
     { id: "settings", label: "Settings", icon: Settings },
     { id: "profile", label: "Profile", icon: User },
@@ -37,7 +35,9 @@ export function Sidebar({ activeTab, setActiveTab, user, onLogout }: SidebarProp
       {/* Brand Header */}
       <div className="p-6 border-b border-violet-600 flex items-center space-x-3">
         <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center text-white">
-          <ShieldCheck className="w-6 h-6" />
+          <svg className="w-6 h-6 text-white" viewBox="0 0 256 256" fill="currentColor">
+            <path d="M 144 256 L 27.598 256 L 144 139.598 Z M 256 207.5 L 200 256 L 200 56 L 0 56 L 48 0 L 256 0 Z M 0 204.402 L 0 112 L 92.402 112 Z" />
+          </svg>
         </div>
         <div>
           <h1 className="font-bold text-white tracking-tight text-lg">Legal Assister</h1>

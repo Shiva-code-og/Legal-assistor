@@ -101,7 +101,9 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
         <div className="bg-violet-700 text-white px-6 py-5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center text-white">
-              <ShieldCheck className="w-6 h-6" />
+              <svg className="w-6 h-6 text-white" viewBox="0 0 256 256" fill="currentColor">
+                <path d="M 144 256 L 27.598 256 L 144 139.598 Z M 256 207.5 L 200 256 L 200 56 L 0 56 L 48 0 L 256 0 Z M 0 204.402 L 0 112 L 92.402 112 Z" />
+              </svg>
             </div>
             <div>
               <h3 className="font-semibold text-lg">Legal Assister</h3>

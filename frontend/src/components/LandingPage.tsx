@@ -33,7 +33,7 @@ export function LandingPage({ onStartFree }: LandingPageProps) {
         {/* CTA Right */}
         <div>
           <button onClick={onStartFree} className="px-5 py-2.5 bg-blue-950 text-white text-sm font-medium rounded-lg hover:bg-blue-950/90 transition-colors duration-200">
-            Book A Demo
+            Start Now
           </button>
         </div>
       </nav>
@@ -50,7 +50,7 @@ export function LandingPage({ onStartFree }: LandingPageProps) {
             They stole your money with paperwork. We take it back with code.
           </p>
           <button onClick={onStartFree} className="mt-8 sm:mt-10 px-7 sm:px-9 py-3.5 bg-blue-950 text-white text-sm font-medium rounded-lg hover:bg-blue-950/90 transition-colors duration-200">
-            Book A Demo
+            Start Now
           </button>
         </div>
 
