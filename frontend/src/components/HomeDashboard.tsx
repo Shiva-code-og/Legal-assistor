@@ -10,16 +10,17 @@ import {
   ArrowRight,
   Zap
 } from "lucide-react";
-import { CaseData } from "../types";
+import { CaseData, UserProfile } from "../types";
 import { ActiveTab } from "./Sidebar";
 
 interface HomeDashboardProps {
   cases: CaseData[];
   setActiveTab: (tab: ActiveTab) => void;
   onSelectCase: (c: CaseData) => void;
+  user: UserProfile;
 }
 
-export function HomeDashboard({ cases, setActiveTab, onSelectCase }: HomeDashboardProps) {
+export function HomeDashboard({ cases, setActiveTab, onSelectCase, user }: HomeDashboardProps) {
   const totalCases = cases.length || 3;
   const recoveredAmount = "$3,950.00";
   const pendingCases = cases.filter(c => c.status !== "Resolved").length || 2;
@@ -44,7 +45,7 @@ export function HomeDashboard({ cases, setActiveTab, onSelectCase }: HomeDashboa
             <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
             <span>Autonomous Defender Online</span>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight mb-2">Welcome back, Defense Commander</h2>
+          <h2 className="text-3xl font-bold tracking-tight mb-2">Welcome back, {user.name}</h2>
           <p className="text-violet-100 text-sm leading-relaxed">
             Your consumer rights guardian is active. Legal Assister is currently monitoring your active cases and ready to audit new disputed bills or statements.
           </p>

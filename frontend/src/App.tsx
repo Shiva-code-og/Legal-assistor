@@ -264,6 +264,7 @@ export default function App() {
                 setSelectedCase(c);
                 setActiveTab("result");
               }}
+              user={user}
             />
           ) : activeTab === "new-case" ? (
             <NewCaseWizard onStartAnalysis={handleStartAnalysis} />
@@ -299,6 +300,7 @@ export default function App() {
                 setSelectedCase(c);
                 setActiveTab("result");
               }}
+              user={user}
             />
           )}
         </div>

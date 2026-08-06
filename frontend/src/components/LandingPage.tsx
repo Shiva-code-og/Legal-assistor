@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { BoomerangVideoBg } from './BoomerangVideoBg';
+import { SplitFlapText } from './ui/SplitFlapText';
 
 interface LandingPageProps {
   onStartFree: () => void;
@@ -76,8 +77,6 @@ export function LandingPage({ onStartFree }: LandingPageProps) {
           <span className="font-bold text-base tracking-tight glossy-baby-violet-text">Legal Assister</span>
         </div>
 
-
-
         {/* CTA Right */}
         <div>
           <button onClick={onStartFree} className="px-5 py-2.5 glossy-baby-violet-btn text-white text-sm font-medium rounded-lg">
@@ -102,6 +101,33 @@ export function LandingPage({ onStartFree }: LandingPageProps) {
           </button>
         </div>
 
+      </section>
+
+      {/* New 100vh 100vw White Section below Hero */}
+      <section className="relative w-screen h-screen bg-white z-20 flex flex-col items-center justify-between py-12 px-6 overflow-hidden">
+        {/* Animated Title using SplitFlapText */}
+        <div className="w-full flex flex-col items-center justify-center pt-4">
+          <SplitFlapText
+            words={['N8N ORCHESTRATION', 'WORKFLOW ENGINE', 'AUTONOMOUS DEFENSE']}
+            flipDuration={0.12}
+            stagger={0.05}
+            cycleDelay={3000}
+            charset="alphanumeric"
+            flipsPerChar={8}
+            tileColor="#6D28D9"
+            textColor="#F3E8FF"
+            tileRadius={8}
+            gap={6}
+            fontSize={36}
+            loop={true}
+            padTo={18}
+          />
+        </div>
+
+        {/* Fullsize Image Container */}
+        <div className="w-full flex-1 my-6 flex items-center justify-center overflow-hidden rounded-2xl border border-purple-100 shadow-2xl bg-slate-950/90 relative p-4">
+          <img src="/n8n_workflow.png" alt="n8n Orchestration Workflow" className="w-full h-full max-h-[70vh] object-contain" />
+        </div>
       </section>
     </div>
   );
