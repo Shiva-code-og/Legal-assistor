@@ -118,7 +118,7 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
     if (!approved) return;
     setSubmitting(true);
 
-    const webhookUrl = localStorage.getItem("aegis_webhook") || "https://workflow.ccbp.in/webhook/activate-campaign";
+    const webhookUrl = localStorage.getItem("la_webhook") || "https://workflow.ccbp.in/webhook/activate-campaign";
 
     const payload = {
       "Select Dispute Type": caseData.caseType,
@@ -459,7 +459,7 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
       <div className="bg-slate-900 text-white rounded-2xl p-8 shadow-2xl border border-slate-800">
         <h3 className="text-xl font-bold mb-2">Campaign Authorization & Webhook Dispatch</h3>
         <p className="text-slate-400 text-sm mb-6">
-          Review your case details and audit summary. Once approved, Aegis Engine will dispatch the POST request payload to your configured webhook endpoint for automated backend notice drafting.
+          Review your case details and audit summary. Once approved, Legal Assister will dispatch the POST request payload to your configured webhook endpoint for automated backend notice drafting.
         </p>
 
         <div className="flex items-center space-x-3 mb-8 bg-slate-800/80 p-4 rounded-xl border border-slate-700">

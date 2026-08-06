@@ -106,7 +106,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
     e.preventDefault();
     const compulsoryOcrText = documentText && documentText.trim().length > 0
       ? documentText
-      : `[OCR Compulsory Extracted Text from Uploaded Document: ${fileName || "Dispute_Document.pdf"}]\nDispute Category: ${disputeType}\nJurisdiction: ${district}, ${state}, ${country} [ZIP/PIN: ${zipCode}]\nExtracted Content: Itemized dispute charges and contractual terms parsed via Aegis OCR engine.`;
+      : `[OCR Compulsory Extracted Text from Uploaded Document: ${fileName || "Dispute_Document.pdf"}]\nDispute Category: ${disputeType}\nJurisdiction: ${district}, ${state}, ${country} [ZIP/PIN: ${zipCode}]\nExtracted Content: Itemized dispute charges and contractual terms parsed via Legal Assister OCR engine.`;
 
     onStartAnalysis({
       caseType: disputeType,
@@ -123,13 +123,13 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
     <div className="max-w-4xl mx-auto py-4">
       {/* Wizard Header */}
       <div className="mb-8">
-        <div className="flex items-center space-x-2 text-blue-600 font-semibold text-xs uppercase tracking-wider mb-2">
+        <div className="flex items-center space-x-2 text-violet-700 font-semibold text-xs uppercase tracking-wider mb-2">
           <Sparkles className="w-4 h-4" />
           <span>Case Intake Wizard</span>
         </div>
         <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Create New Defense Case</h2>
         <p className="text-slate-600 text-sm mt-1">
-          Provide your dispute details and documents. Aegis Engine will perform automated legal analysis and draft your demand campaign.
+          Provide your dispute details and documents. Legal Assister will perform automated legal analysis and draft your demand campaign.
         </p>
       </div>
 
@@ -146,9 +146,9 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
             onClick={() => { if (s.num < step) setStep(s.num as any); }}
             className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
               step === s.num
-                ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20 font-semibold"
+                ? "bg-violet-700 text-white border-violet-600 shadow-md shadow-violet-700/20 font-semibold"
                 : s.num < step
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-medium"
+                  ? "bg-violet-50 text-violet-700 border-violet-200 font-medium"
                   : "bg-white text-slate-400 border-slate-200"
             }`}
           >
@@ -177,13 +177,13 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
                     onClick={() => handlePresetSelect(item.type)}
                     className={`p-5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                       isSelected
-                        ? "border-blue-600 bg-blue-50/50 shadow-md ring-2 ring-blue-600/20"
+                        ? "border-violet-600 bg-violet-50/50 shadow-md ring-2 ring-violet-500/20"
                         : "border-slate-200 hover:border-slate-300 bg-white"
                     }`}
                   >
                     <div>
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${
-                        isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700"
+                        isSelected ? "bg-violet-700 text-white" : "bg-slate-100 text-slate-700"
                       }`}>
                         <Icon className="w-5 h-5" />
                       </div>
@@ -191,7 +191,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
                       <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
                     </div>
                     {isSelected && (
-                      <div className="mt-4 flex items-center text-xs font-semibold text-blue-600">
+                      <div className="mt-4 flex items-center text-xs font-semibold text-violet-700">
                         <CheckCircle2 className="w-4 h-4 mr-1" />
                         <span>Selected</span>
                       </div>
@@ -204,7 +204,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
             <div className="flex justify-end pt-4 border-t border-slate-100">
               <button
                 onClick={() => setStep(2)}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-sm flex items-center space-x-2 shadow-md shadow-blue-600/20 transition-all"
+                className="px-6 py-3 bg-violet-700 hover:bg-violet-600 text-white font-medium rounded-xl text-sm flex items-center space-x-2 shadow-md shadow-violet-700/20 transition-all"
               >
                 <span>Continue to Document Upload</span>
                 <ArrowRight className="w-4 h-4" />
@@ -227,7 +227,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
                 accept=".pdf,.png,.jpg,.jpeg,.heic"
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
-              <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 bg-violet-100 text-violet-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Upload className="w-7 h-7" />
               </div>
               <h4 className="font-semibold text-slate-900 text-base mb-1">
@@ -236,8 +236,8 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
               <p className="text-xs text-slate-500">Supports PDF, PNG, JPG, JPEG, HEIC up to 25MB</p>
 
               {fileName && (
-                <div className="mt-4 inline-flex items-center space-x-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg text-emerald-700 text-xs font-medium">
-                  <FileCheck className="w-4 h-4 text-emerald-600" />
+                <div className="mt-4 inline-flex items-center space-x-2 bg-violet-50 border border-violet-200 px-3 py-1.5 rounded-lg text-violet-700 text-xs font-medium">
+                  <FileCheck className="w-4 h-4 text-violet-600" />
                   <span>Document loaded & OCR ready</span>
                 </div>
               )}
@@ -253,7 +253,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
               </button>
               <button
                 onClick={() => setStep(3)}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-sm flex items-center space-x-2 shadow-md shadow-blue-600/20 transition-all"
+                className="px-6 py-3 bg-violet-700 hover:bg-violet-600 text-white font-medium rounded-xl text-sm flex items-center space-x-2 shadow-md shadow-violet-700/20 transition-all"
               >
                 <span>Continue to ZIP Code</span>
                 <ArrowRight className="w-4 h-4" />
@@ -277,7 +277,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
                 <select
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 font-medium"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 font-medium"
                 >
                   <option value="India">India</option>
                   <option value="United States">United States</option>
@@ -301,7 +301,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
                       setDistrict(dists[0]);
                     }
                   }}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 font-medium"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 font-medium"
                 >
                   {INDIAN_STATES.map((st) => (
                     <option key={st} value={st}>{st}</option>
@@ -316,7 +316,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
                 <select
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 font-medium"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 font-medium"
                 >
                   {(STATE_DISTRICTS[state] || []).map((dist) => (
                     <option key={dist} value={dist}>{dist}</option>
@@ -343,14 +343,14 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
                       }
                     }}
                     placeholder="400001"
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-800 flex items-center space-x-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <div className="bg-violet-50 border border-violet-200 p-4 rounded-xl text-xs text-violet-800 flex items-center space-x-2">
+              <CheckCircle2 className="w-5 h-5 text-violet-600 shrink-0" />
               <span>Auto-recognition active for <strong>{state}</strong> ({country}). Selected District: <strong>{district}</strong> [PIN: {zipCode}]</span>
             </div>
 
@@ -364,7 +364,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
               </button>
               <button
                 onClick={() => setStep(4)}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-sm flex items-center space-x-2 shadow-md shadow-blue-600/20 transition-all"
+                className="px-6 py-3 bg-violet-700 hover:bg-violet-600 text-white font-medium rounded-xl text-sm flex items-center space-x-2 shadow-md shadow-violet-700/20 transition-all"
               >
                 <span>Continue to Description</span>
                 <ArrowRight className="w-4 h-4" />
@@ -390,15 +390,15 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
                 value={problemDescription}
                 onChange={(e) => setProblemDescription(e.target.value)}
                 placeholder="Explain the billing error, unfair charge, or contract breach in detail..."
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 leading-relaxed"
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 leading-relaxed"
               />
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl flex items-start space-x-3 text-blue-900 text-xs">
-              <Sparkles className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+            <div className="bg-violet-50 border border-violet-200 p-4 rounded-xl flex items-start space-x-3 text-violet-900 text-xs">
+              <Sparkles className="w-5 h-5 text-violet-700 shrink-0 mt-0.5" />
               <div>
                 <span className="font-semibold block mb-0.5">AI Legal Audit Ready</span>
-                Upon submission, Aegis Engine will execute our 7-step analysis pipeline, extract line items, research applicable consumer statutes, and generate your demand campaign.
+                Upon submission, Legal Assister will execute our 7-step analysis pipeline, extract line items, research applicable consumer statutes, and generate your demand campaign.
               </div>
             </div>
 
@@ -413,7 +413,7 @@ export function NewCaseWizard({ onStartAnalysis }: NewCaseWizardProps) {
               </button>
               <button
                 type="submit"
-                className="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm flex items-center space-x-2 shadow-xl shadow-blue-600/25 transition-all transform hover:-translate-y-0.5"
+                className="px-8 py-3.5 bg-violet-700 hover:bg-violet-600 text-white font-semibold rounded-xl text-sm flex items-center space-x-2 shadow-xl shadow-violet-700/25 transition-all transform hover:-translate-y-0.5"
               >
                 <span>Submit & Run AI Analysis</span>
                 <Sparkles className="w-4 h-4" />

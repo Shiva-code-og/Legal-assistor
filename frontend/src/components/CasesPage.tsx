@@ -27,7 +27,7 @@ export function CasesPage({ cases, onSelectCase, setActiveTab }: CasesPageProps)
         </div>
         <button
           onClick={() => setActiveTab("new-case")}
-          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-sm flex items-center space-x-2 shadow-md shadow-blue-600/20 transition-all"
+          className="px-5 py-2.5 bg-violet-700 hover:bg-violet-600 text-white font-medium rounded-xl text-sm flex items-center space-x-2 shadow-md shadow-violet-700/20 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>New Case</span>
@@ -42,7 +42,7 @@ export function CasesPage({ cases, onSelectCase, setActiveTab }: CasesPageProps)
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by case type, ID, or grievance summary..."
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600"
           />
         </div>
 
@@ -58,10 +58,10 @@ export function CasesPage({ cases, onSelectCase, setActiveTab }: CasesPageProps)
               <div
                 key={c.caseId}
                 onClick={() => onSelectCase(c)}
-                className="p-5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/20 transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                className="p-5 rounded-xl border border-slate-200 hover:border-violet-300 hover:bg-violet-50/20 transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
               >
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-base shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-700 flex items-center justify-center font-bold text-base shrink-0">
                     {c.caseType.charAt(0)}
                   </div>
                   <div>
@@ -71,7 +71,7 @@ export function CasesPage({ cases, onSelectCase, setActiveTab }: CasesPageProps)
                         {c.caseId}
                       </span>
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                        c.status === "Campaign Active" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"
+                        c.status === "Campaign Active" ? "bg-violet-100 text-violet-800" : "bg-violet-100 text-violet-800"
                       }`}>
                         {c.status || "Campaign Active"}
                       </span>
@@ -83,7 +83,7 @@ export function CasesPage({ cases, onSelectCase, setActiveTab }: CasesPageProps)
                 <div className="flex items-center space-x-6 shrink-0 w-full sm:w-auto justify-between sm:justify-end pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <div className="text-right">
                     <span className="font-bold text-slate-900 text-base">{c.disputedAmount}</span>
-                    <span className="block text-[10px] font-medium text-emerald-600">Win Prob: {c.confidence}%</span>
+                    <span className="block text-[10px] font-medium text-violet-600">Win Prob: {c.confidence}%</span>
                   </div>
                   <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
                     <ArrowRight className="w-4 h-4" />

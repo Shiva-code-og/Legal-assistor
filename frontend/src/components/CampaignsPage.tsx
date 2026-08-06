@@ -7,7 +7,7 @@ interface CampaignsPageProps {
 }
 
 export function CampaignsPage({ cases }: CampaignsPageProps) {
-  const webhookUrl = localStorage.getItem("aegis_webhook") || "https://webhook.site/placeholder";
+  const webhookUrl = localStorage.getItem("la_webhook") || "https://webhook.site/placeholder";
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -17,12 +17,12 @@ export function CampaignsPage({ cases }: CampaignsPageProps) {
       </div>
 
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
-        <div className="bg-slate-900 text-white p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-violet-700 text-white p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <span className="text-xs text-emerald-400 font-mono uppercase tracking-wider block mb-1">Configured Webhook Endpoint</span>
-            <code className="text-xs sm:text-sm font-mono text-slate-300 break-all">{webhookUrl}</code>
+            <span className="text-xs text-violet-200 font-mono uppercase tracking-wider block mb-1">Configured Webhook Endpoint</span>
+            <code className="text-xs sm:text-sm font-mono text-violet-100 break-all">{webhookUrl}</code>
           </div>
-          <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-xs font-semibold shrink-0">
+          <span className="px-3 py-1 bg-white/20 border border-white/30 text-white rounded-lg text-xs font-semibold shrink-0">
             Status: Active & Listening
           </span>
         </div>
@@ -30,16 +30,16 @@ export function CampaignsPage({ cases }: CampaignsPageProps) {
         <div className="space-y-4">
           <h3 className="font-bold text-slate-900 text-lg">Dispatched Campaign Payloads</h3>
           {cases.filter(c => c.status === "Campaign Active" || c.activatedAt).length === 0 ? (
-            <div className="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-              <Zap className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+            <div className="text-center py-12 bg-violet-50 rounded-xl border border-dashed border-violet-200">
+              <Zap className="w-10 h-10 text-violet-300 mx-auto mb-3" />
               <p className="text-sm font-medium text-slate-700">No campaigns activated yet.</p>
               <p className="text-xs text-slate-500 mt-1">Activate a defense campaign from any case result page to dispatch webhook payloads.</p>
             </div>
           ) : (
             cases.filter(c => c.status === "Campaign Active" || c.activatedAt).map((c) => (
-              <div key={c.caseId} className="p-5 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div key={c.caseId} className="p-5 rounded-xl border border-violet-100 bg-violet-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center font-bold text-sm shrink-0">
                     <CheckCircle2 className="w-5 h-5" />
                   </div>
                   <div>
@@ -52,7 +52,7 @@ export function CampaignsPage({ cases }: CampaignsPageProps) {
                 </div>
 
                 <div className="text-right shrink-0">
-                  <span className="text-xs font-mono text-emerald-700 font-semibold">HTTP 200 OK</span>
+                  <span className="text-xs font-mono text-violet-700 font-semibold">HTTP 200 OK</span>
                   <span className="block text-[10px] text-slate-400 mt-0.5">{c.activatedAt ? new Date(c.activatedAt).toLocaleString() : "Just now"}</span>
                 </div>
               </div>

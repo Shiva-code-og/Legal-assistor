@@ -8,7 +8,6 @@ import {
   Scale, 
   FileText, 
   CheckCircle2,
-  ShieldCheck,
   Loader2,
   Zap,
   Download,
@@ -49,21 +48,17 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
 
     async function runAnalysis() {
       try {
-        // Stage 0: Uploading
         if (!isMounted) return;
         setCurrentStage(0);
         await new Promise((r) => setTimeout(r, 500));
 
-        // Stage 1: OCR
         if (!isMounted) return;
         setCurrentStage(1);
         await new Promise((r) => setTimeout(r, 500));
 
-        // Stage 2: Dispatch Webhook POST immediately
         if (!isMounted) return;
         setCurrentStage(2);
 
-        // Build the webhook payload from user input
         const immediateWebhookPayload = {
           "Select Dispute Type": payload.caseType,
           "uploadedDocumentOcrText": payload.documentText,
@@ -83,7 +78,6 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
         let dispatchedDraftedLetter = "";
         let dispatchedFormattedEmail = "";
 
-        // Fire the webhook POST to the backend proxy endpoint immediately
         try {
           const dispatchRes = await fetch("/api/webhook-dispatch", {
             method: "POST",
@@ -105,14 +99,12 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
 
         await new Promise((r) => setTimeout(r, 600));
 
-        // Stages 3-6: Continue pipeline
         for (let i = 3; i < stages.length - 1; i++) {
           if (!isMounted) return;
           setCurrentStage(i);
           await new Promise((r) => setTimeout(r, 500));
         }
 
-        // Call backend API /api/analyze (also sends webhook server-side)
         const res = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -124,7 +116,6 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
           throw new Error(data.error || "Failed to analyze case.");
         }
 
-        // Prefer webhook-dispatch drafted content when available.
         if (dispatchedDraftedLetter && dispatchedDraftedLetter.trim().length > 0) {
           data.draftedLetter = dispatchedDraftedLetter;
         }
@@ -132,7 +123,6 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
           data.formattedEmail = dispatchedFormattedEmail;
         }
 
-        // Update the webhook payload display with the full server response payload
         if (data.webhookPayload) {
           setWebhookPayloadJson(JSON.stringify(data.webhookPayload, null, 2));
         }
@@ -169,22 +159,22 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
   return (
     <div className="max-w-3xl mx-auto py-10 space-y-8">
       {/* Pipeline Progress Card */}
-      <div className="bg-white rounded-3xl p-10 border border-slate-200 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-slate-100 overflow-hidden">
+      <div className="bg-white rounded-3xl p-10 border border-violet-100 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-violet-100 overflow-hidden">
           <motion.div
-            className="h-full bg-blue-600"
+            className="h-full bg-violet-600"
             initial={{ width: "0%" }}
             animate={{ width: `${((currentStage + 1) / stages.length) * 100}%` }}
             transition={{ duration: 0.4 }}
           />
         </div>
 
-        <div className="w-20 h-20 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-6 shadow-md shadow-blue-600/10">
-          <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+        <div className="w-20 h-20 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mx-auto mb-6 shadow-md shadow-violet-600/10">
+          <Loader2 className="w-10 h-10 animate-spin text-violet-600" />
         </div>
 
-        <h2 className="text-2xl font-bold text-slate-900 mb-2 text-center">Aegis AI Audit in Progress</h2>
-        <p className="text-slate-600 text-sm mb-8 text-center">
+        <h2 className="text-2xl font-bold text-slate-900 mb-2 text-center">Legal Assister AI Audit in Progress</h2>
+        <p className="text-slate-500 text-sm mb-8 text-center">
           Processing {payload.caseType} dispute for ZIP Code {payload.zipCode}...
         </p>
 
@@ -199,20 +189,20 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
                 key={idx}
                 className={`flex items-center space-x-3 p-3 rounded-xl transition-all ${
                   isCurrent
-                    ? "bg-blue-50 border border-blue-200 text-blue-900 font-medium"
+                    ? "bg-violet-50 border border-violet-200 text-violet-900 font-medium"
                     : isDone
-                      ? "bg-emerald-50/60 text-emerald-800"
+                      ? "bg-violet-50/60 text-violet-700"
                       : "text-slate-400 opacity-60"
                 }`}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                  isCurrent ? "bg-blue-600 text-white" : isDone ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-400"
+                  isCurrent ? "bg-violet-600 text-white" : isDone ? "bg-violet-500 text-white" : "bg-slate-100 text-slate-400"
                 }`}>
                   {isDone ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>
                 <span className="text-sm">{stage.title}</span>
                 {idx === 2 && isDone && (
-                  <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wider">
+                  <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700 border border-violet-200 uppercase tracking-wider">
                     Dispatched ✓
                   </span>
                 )}
@@ -226,42 +216,42 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
         </div>
       </div>
 
-      {/* Webhook POST Request Display - shows as soon as dispatched */}
+      {/* Webhook POST Request Display */}
       {webhookDispatched && webhookPayloadJson && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-slate-900 text-slate-100 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden"
+          className="bg-violet-900 text-white rounded-2xl border border-violet-700 shadow-2xl overflow-hidden"
         >
           {/* Webhook Header */}
-          <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+          <div className="px-6 py-4 border-b border-violet-700 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                webhookStatus === "sent" ? "bg-emerald-500/20 text-emerald-400" : webhookStatus === "error" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"
+                webhookStatus === "sent" ? "bg-white/20 text-white" : webhookStatus === "error" ? "bg-white/20 text-violet-200" : "bg-white/10 text-violet-300"
               }`}>
                 {webhookStatus === "sent" ? <CheckCircle2 className="w-4 h-4" /> : webhookStatus === "error" ? <Zap className="w-4 h-4" /> : <Loader2 className="w-4 h-4 animate-spin" />}
               </div>
               <div>
                 <h3 className="font-bold text-sm text-white">Webhook POST Request Dispatched</h3>
-                <p className="text-[11px] text-slate-400 font-mono">
-                  POST  https://workflow.ccbp.in/webhook/activate-campaign
+                <p className="text-[11px] text-violet-300 font-mono">
+                  POST → https://workflow.ccbp.in/webhook/activate-campaign
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                webhookStatus === "sent" 
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
-                  : webhookStatus === "error" 
-                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                    : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                webhookStatus === "sent"
+                  ? "bg-white/20 text-white border border-white/30"
+                  : webhookStatus === "error"
+                    ? "bg-violet-800 text-violet-200 border border-violet-600"
+                    : "bg-white/10 text-violet-300 border border-violet-600"
               }`}>
                 {webhookStatus === "sent" ? "200 OK" : webhookStatus === "error" ? "Error" : "Sending..."}
               </span>
               <button
                 onClick={handleDownloadPayload}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition-colors"
+                className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-violet-100 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download</span>
@@ -270,19 +260,19 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
           </div>
 
           {/* Request Info */}
-          <div className="px-6 py-3 border-b border-slate-800/60 bg-slate-950/40">
+          <div className="px-6 py-3 border-b border-violet-700/60 bg-violet-950/40">
             <div className="grid grid-cols-3 gap-4 text-[11px]">
               <div>
-                <span className="text-slate-500 block mb-0.5">Method</span>
-                <span className="font-mono font-bold text-orange-400">POST</span>
+                <span className="text-violet-400 block mb-0.5">Method</span>
+                <span className="font-mono font-bold text-violet-200">POST</span>
               </div>
               <div>
-                <span className="text-slate-500 block mb-0.5">Content-Type</span>
-                <span className="font-mono text-slate-300">application/json</span>
+                <span className="text-violet-400 block mb-0.5">Content-Type</span>
+                <span className="font-mono text-violet-200">application/json</span>
               </div>
               <div>
-                <span className="text-slate-500 block mb-0.5">Timestamp</span>
-                <span className="font-mono text-slate-300">{new Date().toISOString()}</span>
+                <span className="text-violet-400 block mb-0.5">Timestamp</span>
+                <span className="font-mono text-violet-200">{new Date().toISOString()}</span>
               </div>
             </div>
           </div>
@@ -290,20 +280,20 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
           {/* Payload Body */}
           <div className="px-6 py-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-violet-300 uppercase tracking-wider">
                 Request Body (JSON Payload Sent via POST)
               </span>
             </div>
-            <pre className="p-4 bg-slate-950 rounded-xl font-mono text-xs text-emerald-300 overflow-x-auto max-h-80 leading-relaxed border border-slate-800 whitespace-pre-wrap">
+            <pre className="p-4 bg-violet-950 rounded-xl font-mono text-xs text-violet-200 overflow-x-auto max-h-80 leading-relaxed border border-violet-700 whitespace-pre-wrap">
               {webhookPayloadJson}
             </pre>
           </div>
 
           {/* Response */}
-          <div className="px-6 py-4 border-t border-slate-800">
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 space-y-1">
-              <span className="text-blue-400 font-bold block mb-1">Webhook Response:</span>
-              <div className={webhookStatus === "sent" ? "text-emerald-400" : "text-amber-400"}>
+          <div className="px-6 py-4 border-t border-violet-700">
+            <div className="bg-violet-950 p-4 rounded-xl border border-violet-700 font-mono text-xs text-violet-300 space-y-1">
+              <span className="text-violet-400 font-bold block mb-1">Webhook Response:</span>
+              <div className={webhookStatus === "sent" ? "text-violet-200" : "text-violet-300"}>
                 {webhookStatus === "sent" ? "HTTP/1.1 200 OK" : webhookStatus === "error" ? "Error (CORS/Network — server-side dispatch succeeded)" : "Awaiting response..."}
               </div>
               <div>Endpoint: https://workflow.ccbp.in/webhook/activate-campaign</div>

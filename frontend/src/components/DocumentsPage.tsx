@@ -24,7 +24,7 @@ export function DocumentsPage({ cases }: DocumentsPageProps) {
         {documents.map((doc) => (
           <div key={doc.id} className="p-4 rounded-xl border border-slate-200 flex items-center justify-between hover:bg-slate-50 transition-colors">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-700 flex items-center justify-center shrink-0">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
@@ -34,7 +34,7 @@ export function DocumentsPage({ cases }: DocumentsPageProps) {
                   <span>•</span>
                   <span>{doc.date}</span>
                   <span>•</span>
-                  <span className="text-emerald-600 font-medium">{doc.status}</span>
+                  <span className="text-violet-600 font-medium">{doc.status}</span>
                 </div>
               </div>
             </div>

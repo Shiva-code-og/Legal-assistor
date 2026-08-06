@@ -26,7 +26,7 @@ export default function App() {
 
   const sampleCases: CaseData[] = [
     {
-      caseId: "AEGIS-842910",
+      caseId: "LA-842910",
       createdAt: new Date().toISOString(),
       caseType: "Security Deposit",
       zipCode: "90210",
@@ -62,7 +62,7 @@ export default function App() {
       activatedAt: new Date().toISOString()
     },
     {
-      caseId: "AEGIS-391028",
+      caseId: "LA-391028",
       createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
       caseType: "Medical Bill",
       zipCode: "10001",
@@ -180,7 +180,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans text-slate-900">
+    <div className="flex h-screen bg-violet-50 overflow-hidden font-sans text-slate-900">
       {/* Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -195,9 +195,9 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header Bar */}
-        <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
+        <header className="h-16 bg-white border-b border-violet-100 px-8 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Workspace /</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-violet-400">Workspace /</span>
             <span className="text-sm font-bold text-slate-900 capitalize">
               {activeTab === "result" ? "Case Defense Result" : activeTab.replace("-", " ")}
             </span>
@@ -206,7 +206,7 @@ export default function App() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setActiveTab("new-case")}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-xs shadow-sm transition-all flex items-center space-x-1.5"
+              className="px-4 py-2 bg-violet-700 hover:bg-violet-600 text-white font-medium rounded-xl text-xs shadow-sm transition-all flex items-center space-x-1.5"
             >
               <span>+ New Defense Case</span>
             </button>

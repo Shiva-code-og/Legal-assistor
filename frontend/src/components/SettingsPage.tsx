@@ -15,7 +15,7 @@ export function SettingsPage({ user, onUpdateUser }: SettingsPageProps) {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("aegis_webhook", webhookUrl);
+    localStorage.setItem("la_webhook", webhookUrl);
     onUpdateUser({
       ...user,
       webhookUrl
@@ -33,8 +33,8 @@ export function SettingsPage({ user, onUpdateUser }: SettingsPageProps) {
 
       <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
         {saved && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center space-x-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-600" />
+          <div className="mb-6 p-4 rounded-xl bg-violet-50 border border-violet-200 text-violet-800 text-sm font-medium flex items-center space-x-2">
+            <ShieldCheck className="w-5 h-5 text-violet-600" />
             <span>Settings successfully saved to local environment!</span>
           </div>
         )}
@@ -50,17 +50,17 @@ export function SettingsPage({ user, onUpdateUser }: SettingsPageProps) {
               value={webhookUrl}
               onChange={(e) => setWebhookUrl(e.target.value)}
               placeholder="https://webhook.site/your-unique-endpoint"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+              className="w-full px-4 py-3 bg-violet-50 border border-violet-200 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"
             />
             <p className="text-xs text-slate-500 mt-2">
-              When you activate a defense campaign, Aegis Engine sends a secure JSON POST payload to this endpoint.
+              When you activate a defense campaign, Legal Assister sends a secure JSON POST payload to this endpoint.
             </p>
           </div>
 
           <div className="pt-4 border-t border-slate-100 flex justify-end">
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-md shadow-blue-600/20 flex items-center space-x-2 transition-all"
+              className="px-6 py-3 bg-violet-700 hover:bg-violet-600 text-white font-semibold rounded-xl text-sm shadow-md shadow-violet-700/20 flex items-center space-x-2 transition-all"
             >
               <Save className="w-4 h-4" />
               <span>Save Configuration</span>
