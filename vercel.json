@@ -1,12 +1,7 @@
 {
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist",
-  "framework": null,
-  "routes": [
-    { "src": "/api/analyze", "dest": "/api/analyze.ts" },
-    { "src": "/api/webhook-dispatch", "dest": "/api/webhook-dispatch.ts" },
-    { "src": "/api/send-legal-mail", "dest": "/api/send-legal-mail.ts" },
-    { "src": "/api/health", "dest": "/api/health.ts" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
