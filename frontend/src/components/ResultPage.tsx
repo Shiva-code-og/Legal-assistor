@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import BoxLoader from "./ui/3d-box-loader-animation";
 import { motion } from "motion/react";
 import { 
   ShieldCheck, 
@@ -20,6 +21,7 @@ import {
   Mail,
   Loader2
 } from "lucide-react";
+import { LampContainer } from "./ui/lamp";
 import { CaseData, UserProfile } from "../types";
 
 interface ResultPageProps {
@@ -44,6 +46,8 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
   const [sendingMail, setSendingMail] = useState(false);
   const [mailSentSuccess, setMailSentSuccess] = useState(false);
   const [mailSendError, setMailSendError] = useState<string | null>(null);
+  const [showSendingOverlay, setShowSendingOverlay] = useState(false);
+  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleCopyDemandLetter = () => {
     navigator.clipboard.writeText(demandLetter);
@@ -65,6 +69,10 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
     e.preventDefault();
     if (!targetEmail) return;
     setSendingMail(true);
+    // Show 3D loader overlay for exactly 6 seconds
+    setShowSendingOverlay(true);
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+    overlayTimerRef.current = setTimeout(() => setShowSendingOverlay(false), 6000);
     setMailSendError(null);
 
     const emailContent = caseData.formattedEmail || caseData.draftedLetter || demandLetter;
@@ -185,6 +193,18 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-16">
+      {/* 3D Box Loader Overlay — shown for 4s after Send Mail is clicked */}
+      {showSendingOverlay && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+          style={{ background: "rgba(15, 23, 42, 0.92)", backdropFilter: "blur(6px)" }}
+        >
+          <BoxLoader />
+          <p className="mt-8 text-teal-300 font-semibold text-sm tracking-widest uppercase animate-pulse">
+            Sending Legal Notice...
+          </p>
+        </div>
+      )}
       {/* Top Header & Back */}
       <div className="flex items-center justify-between">
         <button
@@ -365,96 +385,120 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
         </div>
       </div>
 
-      {/* Summary Section */}
-      <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-        <div className="flex items-center space-x-2 text-blue-600 text-xs font-semibold uppercase tracking-wider mb-2">
-          <Sparkles className="w-4 h-4" />
-          <span>Executive Audit Summary</span>
-        </div>
-        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-4">
-          {caseData.caseType} Defense Strategy
-        </h2>
-        <p className="text-slate-700 text-base leading-relaxed mb-6">
-          {caseData.summary}
-        </p>
+      {/* Defense Strategy Section with Lamp Scroll Effect */}
+      <LampContainer className="my-8">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="w-full"
+        >
+          <div className="flex items-center space-x-2 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2 justify-center">
+            <Sparkles className="w-4 h-4" />
+            <span>Executive Audit Summary</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4 text-center">
+            {caseData.caseType} Defense Strategy
+          </h2>
+          <p className="text-slate-300 text-base leading-relaxed mb-6 max-w-3xl mx-auto text-center">
+            {caseData.summary}
+          </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-100">
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <span className="text-xs text-slate-500 block mb-1">Case Type</span>
-            <span className="font-bold text-slate-900 text-base">{caseData.caseType}</span>
-          </div>
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <span className="text-xs text-slate-500 block mb-1">Disputed Amount</span>
-            <span className="font-bold text-slate-900 text-base text-rose-600">{caseData.disputedAmount}</span>
-          </div>
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <span className="text-xs text-slate-500 block mb-1">Estimated Recovery</span>
-            <span className="font-bold text-slate-900 text-base text-emerald-600">{caseData.estimatedRecovery}</span>
-          </div>
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <span className="text-xs text-slate-500 block mb-1">Case Strength</span>
-            <span className="font-bold text-slate-900 text-base flex items-center">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2 animate-pulse" />
-              {caseData.caseStrength} ({caseData.confidence}%)
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Detected Line Items */}
-      <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-        <h3 className="text-xl font-bold text-slate-900 mb-4">Detected Disputed Line Items</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
-                <th className="py-3 px-4">Description</th>
-                <th className="py-3 px-4">Amount</th>
-                <th className="py-3 px-4">Reason</th>
-                <th className="py-3 px-4">Flag</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-sm">
-              {caseData.lineItems.map((item, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/50">
-                  <td className="py-4 px-4 font-medium text-slate-900">{item.description}</td>
-                  <td className="py-4 px-4 font-mono font-semibold text-rose-600">{item.amount}</td>
-                  <td className="py-4 px-4 text-slate-600">{item.reason}</td>
-                  <td className="py-4 px-4">
-                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                      {item.flag}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Legal Findings */}
-      <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-        <h3 className="text-xl font-bold text-slate-900 mb-4">Legal Findings & Statutory References</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {caseData.legalFindings.map((finding, idx) => (
-            <div key={idx} className="p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
-                    {finding.statute}
-                  </span>
-                  <span className="text-xs font-semibold text-emerald-600">Confidence: {finding.confidence}</span>
-                </div>
-                <p className="text-sm text-slate-700 mb-4 leading-relaxed">{finding.explanation}</p>
-              </div>
-              <div className="pt-4 border-t border-slate-200 text-xs font-medium text-slate-900">
-                <span className="text-slate-500 block mb-1">Potential Remedy:</span>
-                <span className="text-emerald-700">{finding.potentialRemedy}</span>
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-600/50">
+            <div className="bg-slate-800/70 p-4 rounded-xl border border-slate-600/50">
+              <span className="text-xs text-slate-400 block mb-1">Case Type</span>
+              <span className="font-bold text-white text-base">{caseData.caseType}</span>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="bg-slate-800/70 p-4 rounded-xl border border-slate-600/50">
+              <span className="text-xs text-slate-400 block mb-1">Disputed Amount</span>
+              <span className="font-bold text-rose-400 text-base">{caseData.disputedAmount}</span>
+            </div>
+            <div className="bg-slate-800/70 p-4 rounded-xl border border-slate-600/50">
+              <span className="text-xs text-slate-400 block mb-1">Estimated Recovery</span>
+              <span className="font-bold text-base" style={{ color: "#E6E6FA" }}>{caseData.estimatedRecovery}</span>
+            </div>
+            <div className="bg-slate-800/70 p-4 rounded-xl border border-slate-600/50">
+              <span className="text-xs text-slate-400 block mb-1">Case Strength</span>
+              <span className="font-bold text-white text-base flex items-center">
+                <span className="w-2.5 h-2.5 rounded-full mr-2 animate-pulse" style={{ backgroundColor: "#E6E6FA" }} />
+                {caseData.caseStrength} ({caseData.confidence}%)
+              </span>
+            </div>
+          </div>
+        </motion.div>
+      </LampContainer>
+
+      {/* Detected Line Items Section with Lamp Scroll Effect */}
+      <LampContainer className="my-8">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="w-full"
+        >
+          <h3 className="text-2xl font-bold text-white mb-6 text-center">Detected Disputed Line Items</h3>
+          <div className="overflow-x-auto bg-slate-800/60 rounded-xl border border-slate-600/50 p-2">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-600 text-xs font-semibold text-slate-400 uppercase">
+                  <th className="py-3 px-4">Description</th>
+                  <th className="py-3 px-4">Amount</th>
+                  <th className="py-3 px-4">Reason</th>
+                  <th className="py-3 px-4">Flag</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-700/60 text-sm">
+                {caseData.lineItems.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-slate-700/40 transition-colors">
+                    <td className="py-4 px-4 font-medium text-slate-200">{item.description}</td>
+                    <td className="py-4 px-4 font-mono font-semibold text-rose-400">{item.amount}</td>
+                    <td className="py-4 px-4 text-slate-400">{item.reason}</td>
+                    <td className="py-4 px-4">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-900/50 text-amber-300 border border-amber-700/50">
+                        {item.flag}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      </LampContainer>
+
+      {/* Legal Findings Section with Lamp Scroll Effect */}
+      <LampContainer className="my-8">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="w-full"
+        >
+          <h3 className="text-2xl font-bold text-white mb-6 text-center">Legal Findings & Statutory References</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {caseData.legalFindings.map((finding, idx) => (
+              <div key={idx} className="p-6 rounded-xl bg-slate-800/60 border border-slate-600/50 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-mono text-xs font-bold text-cyan-300 bg-cyan-900/40 px-2.5 py-1 rounded-md border border-cyan-700/50">
+                      {finding.statute}
+                    </span>
+                    <span className="text-xs font-semibold" style={{ color: "#E6E6FA" }}>Confidence: {finding.confidence}</span>
+                  </div>
+                  <p className="text-sm text-slate-300 mb-4 leading-relaxed">{finding.explanation}</p>
+                </div>
+                <div className="pt-4 border-t border-slate-600/50 text-xs font-medium">
+                  <span className="text-slate-500 block mb-1">Potential Remedy:</span>
+                  <span style={{ color: "#E6E6FA" }}>{finding.potentialRemedy}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </LampContainer>
 
       {/* Campaign Approval */}
       <div className="bg-slate-900 text-white rounded-2xl p-8 shadow-2xl border border-slate-800">
@@ -481,9 +525,10 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
           onClick={handleActivateCampaign}
           className={`w-full py-4 rounded-xl font-bold text-base flex items-center justify-center space-x-3 transition-all shadow-xl ${
             approved && !submitting
-              ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 cursor-pointer transform hover:-translate-y-0.5"
+              ? "text-slate-900 cursor-pointer transform hover:-translate-y-0.5"
               : "bg-slate-800 text-slate-500 cursor-not-allowed"
           }`}
+          style={approved && !submitting ? { backgroundColor: "#E6E6FA", boxShadow: "0 10px 25px -5px rgba(230, 230, 250, 0.4)" } : {}}
         >
           {submitting ? (
             <span>Dispatching Webhook Campaign...</span>

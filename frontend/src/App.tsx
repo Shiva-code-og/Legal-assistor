@@ -13,8 +13,18 @@ import { SettingsPage } from "./components/SettingsPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { CaseData, UserProfile, DisputeType } from "./types";
 import { upsertUserProfile, saveCaseToSupabase, fetchUserCasesFromSupabase } from "./lib/supabase";
+import { CinematicIntro } from "./components/ui/cinematic-intro";
 
 export default function App() {
+  // Show intro once per browser session
+  const [showIntro, setShowIntro] = useState<boolean>(
+    () => !sessionStorage.getItem("la_intro_seen")
+  );
+  const handleIntroComplete = () => {
+    sessionStorage.setItem("la_intro_seen", "1");
+    setShowIntro(false);
+  };
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
@@ -164,6 +174,7 @@ export default function App() {
   if (!isAuthenticated) {
     return (
       <>
+        {showIntro && <CinematicIntro onComplete={handleIntroComplete} />}
         <LandingPage
           onStartFree={() => setShowAuthModal(true)}
           onWatchDemo={() => {
@@ -182,7 +193,12 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-violet-50 overflow-hidden font-sans text-slate-900">
+    <div
+      className="flex h-screen overflow-hidden font-sans text-slate-900"
+      style={{
+        background: "linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 40%, #F3E8FF 70%, #FAF5FF 100%)",
+      }}
+    >
       {/* Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -197,10 +213,19 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header Bar */}
-        <header className="h-16 bg-white border-b border-violet-100 px-8 flex items-center justify-between shrink-0">
+        <header
+          className="h-16 px-8 flex items-center justify-between shrink-0"
+          style={{
+            background: "rgba(255,255,255,0.55)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderBottom: "1px solid rgba(167,139,250,0.2)",
+            boxShadow: "0 2px 16px rgba(109,40,217,0.07)",
+          }}
+        >
           <div className="flex items-center space-x-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-violet-400">Workspace /</span>
-            <span className="text-sm font-bold text-slate-900 capitalize">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(139,92,246,0.7)" }}>Workspace /</span>
+            <span className="text-sm font-bold text-slate-800 capitalize">
               {activeTab === "result" ? "Case Defense Result" : activeTab.replace("-", " ")}
             </span>
           </div>
@@ -208,7 +233,11 @@ export default function App() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setActiveTab("new-case")}
-              className="px-4 py-2 bg-violet-700 hover:bg-violet-600 text-white font-medium rounded-xl text-xs shadow-sm transition-all flex items-center space-x-1.5"
+              className="px-4 py-2 text-white font-bold rounded-xl text-xs flex items-center space-x-1.5 transition-all"
+              style={{
+                background: "linear-gradient(135deg, #C084FC 0%, #A855F7 50%, #7C3AED 100%)",
+                boxShadow: "0 4px 16px rgba(168,85,247,0.35), inset 0 1px 1px rgba(255,255,255,0.4)",
+              }}
             >
               <span>+ New Defense Case</span>
             </button>
@@ -216,7 +245,7 @@ export default function App() {
         </header>
 
         {/* Scrollable Viewport */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-8" style={{ background: "transparent" }}>
           {analyzing && analysisPayload ? (
             <AiAnalysisPipeline
               payload={analysisPayload}

@@ -90,15 +90,65 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-violet-900/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-purple-950/50 backdrop-blur-sm p-4">
+      <style>{`
+        .glossy-baby-violet-text {
+          background: linear-gradient(
+            160deg,
+            #E9D5FF 0%,
+            #C084FC 25%,
+            #A855F7 50%,
+            #7C3AED 75%,
+            #C084FC 100%
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          transform: translateZ(0);
+          filter: drop-shadow(0px 2px 10px rgba(168,85,247,0.35));
+        }
+
+        .glossy-baby-violet-header {
+          background: linear-gradient(
+            135deg,
+            #8B5CF6 0%,
+            #7C3AED 50%,
+            #6D28D9 100%
+          );
+          box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
+        }
+
+        .glossy-baby-violet-btn {
+          background: linear-gradient(
+            135deg,
+            #C084FC 0%,
+            #A855F7 50%,
+            #7C3AED 100%
+          );
+          box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+          transition: all 0.2s ease-in-out;
+        }
+
+        .glossy-baby-violet-btn:hover {
+          background: linear-gradient(
+            135deg,
+            #D8B4FE 0%,
+            #C084FC 50%,
+            #8B5CF6 100%
+          );
+          box-shadow: 0 6px 25px rgba(168, 85, 247, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.7);
+          transform: translateY(-1px);
+        }
+      `}</style>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-violet-100 overflow-hidden"
+        className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-purple-100 overflow-hidden"
       >
         {/* Header */}
-        <div className="bg-violet-700 text-white px-6 py-5 flex items-center justify-between">
+        <div className="glossy-baby-violet-header text-white px-6 py-5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center text-white">
               <svg className="w-6 h-6 text-white" viewBox="0 0 256 256" fill="currentColor">
@@ -106,13 +156,13 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-lg">Legal Assister</h3>
-              <p className="text-xs text-violet-200">Autonomous Consumer Defense</p>
+              <h3 className="font-bold text-lg text-white tracking-wide">Legal Assister</h3>
+              <p className="text-xs text-purple-200">Autonomous Consumer Defense</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-violet-200 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+            className="text-purple-200 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
           >
             <X className="w-5 h-5" />
           </button>
@@ -120,19 +170,19 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
 
         {/* Form Body */}
         <div className="p-6">
-          <div className="flex bg-violet-50 p-1 rounded-xl mb-6">
+          <div className="flex bg-purple-50 p-1 rounded-xl mb-6">
             <button
               onClick={() => { setMode("login"); setSubmitted(false); }}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
-                mode === "login" ? "bg-violet-700 text-white shadow-sm" : "text-violet-600 hover:text-violet-900"
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                mode === "login" ? "glossy-baby-violet-btn text-white shadow-sm" : "text-purple-700 hover:text-purple-900"
               }`}
             >
               Sign In
             </button>
             <button
               onClick={() => { setMode("signup"); setSubmitted(false); }}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
-                mode === "signup" ? "bg-violet-700 text-white shadow-sm" : "text-violet-600 hover:text-violet-900"
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                mode === "signup" ? "glossy-baby-violet-btn text-white shadow-sm" : "text-purple-700 hover:text-purple-900"
               }`}
             >
               Sign Up
@@ -141,16 +191,16 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
 
           {submitted && mode === "forgot" ? (
             <div className="py-8 text-center space-y-4">
-              <div className="w-12 h-12 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <h4 className="font-semibold text-slate-900 text-lg">Reset Link Sent</h4>
               <p className="text-sm text-slate-600">
-                We've sent password reset instructions to <span className="font-medium text-violet-700">{email}</span>.
+                We've sent password reset instructions to <span className="font-medium text-purple-700">{email}</span>.
               </p>
               <button
                 onClick={() => setMode("login")}
-                className="mt-4 px-4 py-2 bg-violet-700 text-white rounded-xl text-sm font-medium hover:bg-violet-600 transition-colors"
+                className="mt-4 px-4 py-2 glossy-baby-violet-btn text-white rounded-xl text-sm font-bold transition-colors"
               >
                 Return to Sign In
               </button>
@@ -163,14 +213,14 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                     Full Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3.5 top-3 w-4 h-4 text-violet-400" />
+                    <User className="absolute left-3.5 top-3 w-4 h-4 text-purple-400" />
                     <input
                       type="text"
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Alex Morgan"
-                      className="w-full pl-10 pr-4 py-2.5 bg-violet-50 border border-violet-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"
+                      className="w-full pl-10 pr-4 py-2.5 bg-purple-50/50 border border-purple-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                     />
                   </div>
                 </div>
@@ -181,14 +231,14 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-3 w-4 h-4 text-violet-400" />
+                  <Mail className="absolute left-3.5 top-3 w-4 h-4 text-purple-400" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="alex@example.com"
-                    className="w-full pl-10 pr-4 py-2.5 bg-violet-50 border border-violet-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"
+                    className="w-full pl-10 pr-4 py-2.5 bg-purple-50/50 border border-purple-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   />
                 </div>
               </div>
@@ -203,21 +253,21 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                       <button
                         type="button"
                         onClick={() => setMode("forgot")}
-                        className="text-xs text-violet-600 hover:underline font-medium"
+                        className="text-xs text-purple-600 hover:underline font-medium"
                       >
                         Forgot password?
                       </button>
                     )}
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-3 w-4 h-4 text-violet-400" />
+                    <Lock className="absolute left-3.5 top-3 w-4 h-4 text-purple-400" />
                     <input
                       type="password"
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full pl-10 pr-4 py-2.5 bg-violet-50 border border-violet-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"
+                      className="w-full pl-10 pr-4 py-2.5 bg-purple-50/50 border border-purple-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                     />
                   </div>
                 </div>
@@ -231,7 +281,7 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
 
               <button
                 type="submit"
-                className="w-full mt-2 py-3 bg-violet-700 hover:bg-violet-600 text-white font-medium rounded-xl text-sm flex items-center justify-center space-x-2 shadow-lg shadow-violet-700/20 transition-all"
+                className="w-full mt-2 py-3 glossy-baby-violet-btn text-white font-bold rounded-xl text-sm flex items-center justify-center space-x-2 transition-all"
               >
                 <span>{mode === "login" ? "Sign In to Dashboard" : mode === "signup" ? "Create Account" : "Send Reset Instructions"}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -250,15 +300,9 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                 </div>
               </div>
 
-              <div className="w-full flex justify-center">
-                <div id="google-signin-btn-container" className="w-full max-w-[380px]"></div>
-              </div>
+              <div id="google-signin-btn-container" className="w-full min-h-[44px] flex justify-center"></div>
             </>
           )}
-
-          <div className="mt-6 text-center text-xs text-slate-500">
-            Protected by government-grade encryption and secure AI legal auditing.
-          </div>
         </div>
       </motion.div>
     </div>
