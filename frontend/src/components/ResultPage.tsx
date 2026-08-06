@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import BoxLoader from "./ui/3d-box-loader-animation";
 import { motion } from "motion/react";
-import { 
-  ShieldCheck, 
-  Download, 
-  Copy, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Scale, 
-  FileText, 
-  PhoneCall, 
-  ArrowLeft, 
-  Zap, 
+import {
+  ShieldCheck,
+  Download,
+  Copy,
+  CheckCircle2,
+  AlertTriangle,
+  Scale,
+  FileText,
+  PhoneCall,
+  ArrowLeft,
+  Zap,
   Sparkles,
   ChevronDown,
   ChevronUp,
@@ -96,7 +96,7 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         }),
-        minDisplayTimer // always waits 6 seconds
+        minDisplayTimer
       ]);
 
       if (!res.ok) {
@@ -333,11 +333,10 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
             <button
               type="submit"
               disabled={sendingMail || !targetEmail}
-              className={`px-6 py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow-md ${
-                targetEmail && !sendingMail
+              className={`px-6 py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow-md ${targetEmail && !sendingMail
                   ? "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 cursor-pointer"
                   : "bg-slate-300 text-slate-500 cursor-not-allowed"
-              }`}
+                }`}
             >
               {sendingMail ? (
                 <>
@@ -515,11 +514,10 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
         <button
           disabled={!approved || submitting}
           onClick={handleActivateCampaign}
-          className={`w-full py-4 rounded-xl font-bold text-base flex items-center justify-center space-x-3 transition-all shadow-xl ${
-            approved && !submitting
+          className={`w-full py-4 rounded-xl font-bold text-base flex items-center justify-center space-x-3 transition-all shadow-xl ${approved && !submitting
               ? "text-slate-900 cursor-pointer transform hover:-translate-y-0.5"
               : "bg-slate-800 text-slate-500 cursor-not-allowed"
-          }`}
+            }`}
           style={approved && !submitting ? { backgroundColor: "#E6E6FA", boxShadow: "0 10px 25px -5px rgba(230, 230, 250, 0.4)" } : {}}
         >
           {submitting ? (
