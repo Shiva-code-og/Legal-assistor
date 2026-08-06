@@ -121,25 +121,25 @@ Whether the issue is unfair vendor practices, excessive hospital billing, consum
 
 ### Home Page
 
-![Home Page](assets/project1.png)
+![Home Page](frontend/public/project1.png)
 
 ---
 
 ### Complaint Form
 
-![Complaint Form](assets/project2.png)
+![Complaint Form](frontend/public/project2.png)
 
 ---
 
 ### Complaint Preview
 
-![Complaint Preview](assets/project3.png)
+![Complaint Preview](frontend/public/project3.png)
 
 ---
 
 ### Successful Submission
 
-![Successful Submission](assets/project4.png)
+![Successful Submission](frontend/public/project4.png)
 
 ---
 
