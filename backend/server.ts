@@ -434,6 +434,7 @@ async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
+      configFile: path.resolve(process.cwd(), 'configuration/vite.config.ts'),
       server: { middlewareMode: true },
       appType: "spa",
     });
@@ -451,4 +452,8 @@ async function startServer() {
   });
 }
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
