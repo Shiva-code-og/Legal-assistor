@@ -15,6 +15,30 @@ import { CaseData, UserProfile, DisputeType } from "./types";
 import { upsertUserProfile, saveCaseToSupabase, fetchUserCasesFromSupabase } from "./lib/supabase";
 import { CinematicIntro } from "./components/ui/cinematic-intro";
 
+// ── localStorage helpers ──────────────────────────────────────────────
+const LS_USER = "la_user";
+const LS_CASES = "la_cases";
+const LS_TAB   = "la_active_tab";
+
+function loadFromStorage<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveToStorage<T>(key: string, value: T) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {}
+}
+
+function clearSession() {
+  [LS_USER, LS_CASES, LS_TAB].forEach((k) => localStorage.removeItem(k));
+}
+
 export default function App() {
   // Show intro once per browser session
   const [showIntro, setShowIntro] = useState<boolean>(
@@ -25,16 +49,20 @@ export default function App() {
     setShowIntro(false);
   };
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Restore auth + user from localStorage on page load
+  const storedUser = loadFromStorage<UserProfile | null>(LS_USER, null);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!storedUser);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
-  const [user, setUser] = useState<UserProfile>({
-    name: "Alex Morgan",
-    email: "alex.morgan@consumer.org",
-    webhookUrl: "https://workflow.ccbp.in/webhook/activate-campaign"
-  });
-
-
+  const [activeTab, setActiveTab] = useState<ActiveTab>(
+    () => loadFromStorage<ActiveTab>(LS_TAB, "dashboard")
+  );
+  const [user, setUser] = useState<UserProfile>(
+    storedUser ?? {
+      name: "Alex Morgan",
+      email: "alex.morgan@consumer.org",
+      webhookUrl: "https://workflow.ccbp.in/webhook/activate-campaign"
+    }
+  );
 
   const sampleCases: CaseData[] = [
     {
@@ -109,7 +137,10 @@ export default function App() {
     }
   ];
 
-  const [cases, setCases] = useState<CaseData[]>(sampleCases);
+  // Restore cases from localStorage (fallback to sample cases for demo)
+  const [cases, setCases] = useState<CaseData[]>(
+    () => loadFromStorage<CaseData[]>(LS_CASES, sampleCases)
+  );
   const [selectedCase, setSelectedCase] = useState<CaseData | null>(null);
   const [analysisPayload, setAnalysisPayload] = useState<{
     caseType: DisputeType;
@@ -121,6 +152,12 @@ export default function App() {
     documentText: string;
   } | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+
+  // Persist active tab whenever it changes
+  const handleSetActiveTab = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    saveToStorage(LS_TAB, tab);
+  };
 
   const handleStartAnalysis = (payload: {
     caseType: DisputeType;
@@ -136,18 +173,20 @@ export default function App() {
   };
 
   const handleAnalysisComplete = (newCase: CaseData) => {
-    setCases([newCase, ...cases]);
+    const updatedCases = [newCase, ...cases];
+    setCases(updatedCases);
+    saveToStorage(LS_CASES, updatedCases);   // ← persist
     setSelectedCase(newCase);
     setAnalyzing(false);
-    setActiveTab("result");
-    // Persist new case to Supabase
+    handleSetActiveTab("result");
     saveCaseToSupabase(newCase, user.email);
   };
 
   const handleCampaignActivated = (updatedCase: CaseData) => {
-    setCases(cases.map(c => c.caseId === updatedCase.caseId ? updatedCase : c));
+    const updatedCases = cases.map(c => c.caseId === updatedCase.caseId ? updatedCase : c);
+    setCases(updatedCases);
+    saveToStorage(LS_CASES, updatedCases);   // ← persist
     setSelectedCase(updatedCase);
-    // Update case status in Supabase
     saveCaseToSupabase(updatedCase, user.email);
   };
 
@@ -155,19 +194,31 @@ export default function App() {
     setUser(loggedInUser);
     setIsAuthenticated(true);
     setShowAuthModal(false);
-    // 1. Sync user profile details to Supabase database
+    saveToStorage(LS_USER, loggedInUser);    // ← persist user
+
     upsertUserProfile(loggedInUser);
 
-    // 2. Fetch existing cases from Supabase if available
     const remoteCases = await fetchUserCasesFromSupabase(loggedInUser.email);
     if (remoteCases && remoteCases.length > 0) {
       setCases(remoteCases);
+      saveToStorage(LS_CASES, remoteCases);  // ← persist cases from Supabase
     }
   };
 
   const handleUserUpdate = (updatedUser: UserProfile) => {
     setUser(updatedUser);
+    saveToStorage(LS_USER, updatedUser);     // ← persist updated profile
     upsertUserProfile(updatedUser);
+  };
+
+  // Clear ALL session data only when logout is clicked
+  const handleLogout = () => {
+    clearSession();
+    setIsAuthenticated(false);
+    setUser({ name: "Alex Morgan", email: "alex.morgan@consumer.org", webhookUrl: "" });
+    setCases(sampleCases);
+    setSelectedCase(null);
+    setActiveTab("dashboard");
   };
 
   // If not authenticated, show landing page & auth modal
@@ -203,11 +254,11 @@ export default function App() {
       <Sidebar
         activeTab={activeTab}
         setActiveTab={(tab) => {
-          setActiveTab(tab);
+          handleSetActiveTab(tab);
           if (tab !== "result") setSelectedCase(null);
         }}
         user={user}
-        onLogout={() => setIsAuthenticated(false)}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area */}
@@ -232,7 +283,7 @@ export default function App() {
 
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => setActiveTab("new-case")}
+              onClick={() => handleSetActiveTab("new-case")}
               className="px-4 py-2 text-white font-bold rounded-xl text-xs flex items-center space-x-1.5 transition-all"
               style={{
                 background: "linear-gradient(135deg, #C084FC 0%, #A855F7 50%, #7C3AED 100%)",
@@ -259,10 +310,10 @@ export default function App() {
           ) : activeTab === "dashboard" ? (
             <HomeDashboard
               cases={cases}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleSetActiveTab}
               onSelectCase={(c) => {
                 setSelectedCase(c);
-                setActiveTab("result");
+                handleSetActiveTab("result");
               }}
               user={user}
             />
@@ -273,9 +324,9 @@ export default function App() {
               cases={cases}
               onSelectCase={(c) => {
                 setSelectedCase(c);
-                setActiveTab("result");
+                handleSetActiveTab("result");
               }}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleSetActiveTab}
             />
           ) : activeTab === "campaigns" ? (
             <CampaignsPage cases={cases} />
@@ -289,7 +340,7 @@ export default function App() {
             <ResultPage
               caseData={selectedCase}
               user={user}
-              onBack={() => setActiveTab("dashboard")}
+              onBack={() => handleSetActiveTab("dashboard")}
               onCampaignActivated={handleCampaignActivated}
             />
           ) : (

@@ -86,8 +86,8 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
       formattedEmail: emailContent
     };
 
-    // Run POST request AND a 6-second minimum timer in parallel
-    const minDisplayTimer = new Promise<void>((resolve) => setTimeout(resolve, 6000));
+    // Run POST request AND a 12-second minimum timer in parallel
+    const minDisplayTimer = new Promise<void>((resolve) => setTimeout(resolve, 12000));
 
     try {
       const [res] = await Promise.all([
