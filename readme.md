@@ -1,164 +1,197 @@
-# Legal Assister
+# ⚖️ Legal Assister
+
 ### AI-Powered Consumer Legal Assistance Platform
 
-**Developed by:**  
-@merakstack, @shiva-code-og, @vignesh-0314, @navaneesh
+<p align="center">
+
+
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)
+![n8n](https://img.shields.io/badge/n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)
+![Antigravity](https://img.shields.io/badge/Antigravity-AI-6C63FF?style=for-the-badge)
+
+</p>
+
+<p align="center">
+AI-powered legal complaint assistant that helps consumers generate, format, and submit complaints directly to the appropriate legal authority through automated workflows.
+</p>
 
 ---
 
-## Overview
+## 👨‍💻 Developed By
 
-Legal Assister is an AI-powered legal assistance platform designed to help ordinary citizens stand up against corporations that engage in unfair or illegal practices.
-
-The platform simplifies the complaint filing process by collecting the user's information, generating a professionally formatted legal complaint, converting it into a PDF, and automatically sending it via email to the appropriate legal authority through an automated n8n workflow.
-
-Whether the issue is unfair vendor practices, excessive hospital billing, consumer fraud, hidden charges, or other violations of consumer rights, Legal Assister helps users prepare and submit formal complaints with minimal effort.
-
----
-
-## 🎥 Demo
-
-**Legal Assister Demo**
+- **@merakstack**
+- **@shiva-code-og**
+- **sreeshanth1224**
+- **@navaneesh**
 
 ---
 
-## Sample Workflow
+# 🌟 Overview
 
-```
-      User Opens Website
-               │
-               ▼
-      Describe the Legal Issue
-               │
-               ▼
-      AI Collects Required Details
-               │
-               ▼
-       User Reviews Information
-               │
-               ▼
-         Submit Complaint
-               │
-               ▼
-     Frontend Sends POST Request
-          to n8n Webhook
-               │
-               ▼
-     Complaint PDF Generated
-               │
-               ▼
-    Appropriate Authority Selected
-               │
-               ▼
-     Email with PDF Complaint Sent
-               │
-               ▼
-     User Receives Confirmation
-```
+Legal Assister is an AI-powered legal assistance platform designed to help ordinary citizens stand up against corporations engaging in unfair or illegal practices.
+
+The platform simplifies the complaint filing process by collecting user information, generating a professionally formatted legal complaint, converting it into a PDF, and automatically sending it to the appropriate legal authority using an automated **n8n workflow**.
+
+Whether the issue is:
+
+- Consumer Fraud
+- Hospital Overcharging
+- Hidden Charges
+- Vendor Malpractice
+- Refund Disputes
+- Warranty Violations
+- Billing Errors
+- Digital Payment Fraud
+
+Legal Assister helps users prepare and submit formal legal complaints within minutes.
 
 ---
 
-# Features
+# 🎥 Demo
 
-- ⚖️ AI-guided legal complaint assistance
-- 📝 Interactive complaint collection form
-- 📄 Automatic PDF complaint generation
-- 📧 Email complaints directly to legal authorities
+<p align="center">
+  <a href="https://drive.google.com/file/d/11ILVQLMvxxeutybbo5ZUEv2H2zVMmn4d/view?usp=sharing" target="_blank">
+    <img src="frontend/public/demo.png" alt="Legal Assister Demo" width="900"/>
+  </a>
+</p>
+
+<p align="center">
+  <b>👆 Click the image above to watch the demo video</b>
+</p>
+---
+
+# ✨ Features
+
+- ⚖️ AI-powered complaint drafting
+- 📝 Interactive complaint form
+- 📄 Automatic PDF generation
+- 📧 Email complaints directly to authorities
 - 🔄 n8n workflow automation
-- 🤖 AI-assisted legal document formatting
-- 🌐 Next.js frontend
-- ⚡ Fast and responsive interface
-- 🔒 Secure user data handling
+- 🤖 AI-assisted legal formatting
+- ⚡ Fast Next.js interface
+- 🔒 Secure user information
+- 🌐 Responsive design
 - 📤 One-click complaint submission
 
 ---
 
-# Tech Stack
+# 🛠 Tech Stack
 
-```
+<p align="center">
+
+<img src="https://skillicons.dev/icons?i=ts,supabase,github" />
+<img src="https://img.shields.io/badge/n8n-Workflow%20Automation-EA4B71?style=for-the-badge&logo=n8n&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/Render-Deployment-46E3B7?style=for-the-badge&logo=render&logoColor=black"/>
+
+<img src="https://img.shields.io/badge/Antigravity-AI-6C63FF?style=for-the-badge"/>
+
+
+<br><br>
+
+
+</p>
+
+---
+
+# 📸 Project Screenshots
+
+<p align="center">
+
+<table>
+<tr>
+
+<td align="center">
+<img src="frontend/public/project1.png" width="450">
+
+**🏠 Home Page**
+
+</td>
+
+<td align="center">
+<img src="frontend/public/project2.png" width="450">
+
+**📝 Complaint Form**
+
+</td>
+
+</tr>
+
+<tr>
+
+<td align="center">
+<img src="frontend/public/project3.png" width="450">
+
+**📄 Complaint Preview**
+
+</td>
+
+<td align="center">
+<img src="frontend/public/project4.png" width="450">
+
+**✅ Successful Submission**
+
+</td>
+
+</tr>
+</table>
+
+</p>
+
+---
+
+# ⚙️ Architecture
+
+```text
                          FRONTEND LAYER
-   ┌────────────────────────────────────────────────────────┐
-   │                  Next.js (App Router)                  │
-   │   - TypeScript UI Components                           │
-   │   - Responsive Interface                               │
-   │   - Complaint Form                                     │
-   └───────────────────────────┬────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│                  Next.js (App Router)                      │
+│                                                            │
+│  • TypeScript                                              │
+│  • Complaint Form                                          │
+│  • Responsive UI                                           │
+└──────────────────────────┬─────────────────────────────────┘
+                           │
+                           │ POST Request
+                           ▼
 
-                                │ (POST Request)
-                         ▲      ▼      ▲
-      ┌──────────────────┼─────────────┼──────────────────┐
-      │ Hosted on:       │             │                  │
-      │     Vercel       │             │                  │
-      └──────────────────┘             │                  │
-                                       │
-                                       ▼
+                  AUTOMATION LAYER
 
-                         AUTOMATION LAYER
+┌────────────────────────────────────────────────────────────┐
+│                    n8n Workflow                            │
+│                                                            │
+│ • Receive Complaint Data                                   │
+│ • Validate User Inputs                                     │
+│ • Generate Complaint PDF                                   │
+│ • Select Legal Authority                                   │
+│ • Send Email via Gmail API                                 │
+└──────────────────────────┬─────────────────────────────────┘
+                           │
+                           ▼
 
-   ┌────────────────────────────────────────────────────────┐
-   │                       n8n Workflow                     │
-   │                                                        │
-   │ • Receive Complaint Data                               │
-   │ • Validate Information                                 │
-   │ • Generate Legal Complaint PDF                         │
-   │ • Select Appropriate Authority                         │
-   │ • Send Email with PDF Attachment                       │
-   └───────────────────────────┬────────────────────────────┘
-                               │
-                               ▼
+                  EXTERNAL SERVICES
 
-                        EXTERNAL SERVICES
+      ┌─────────────────────┐
+      │   PDF Generator     │
+      └─────────────────────┘
 
-        ┌─────────────────────┐      ┌────────────────────┐
-        │    PDF Generator    │      │     Gmail API      │
-        │ Complaint Document  │      │ Sends Complaint    │
-        └─────────────────────┘      └────────────────────┘
+      ┌─────────────────────┐
+      │     Gmail API       │
+      └─────────────────────┘
+
+      ┌─────────────────────┐
+      │     Supabase        │
+      └─────────────────────┘
 ```
 
 ---
 
-# Project Images
+# 🚀 Installation
 
-### Home Page
-
-![Home Page](frontend/public/project1.png)
-
----
-
-### Complaint Form
-
-![Complaint Form](frontend/public/project2.png)
-
----
-
-### Complaint Preview
-
-![Complaint Preview](frontend/public/project3.png)
-
----
-
-### Successful Submission
-
-![Successful Submission](frontend/public/project4.png)
-
----
-
-# Installation Guide
-
-## Prerequisites
-
-Make sure you have installed:
-
-- Node.js (v18 or later)
-- npm / yarn / pnpm
-- Git
-- n8n Instance
-- Gmail API Credentials
-- PDF Generation Service (if external)
-
----
-
-## 1. Clone Repository
+## Clone Repository
 
 ```bash
 git clone https://github.com/yourusername/legal-assister.git
@@ -168,7 +201,7 @@ cd legal-assister
 
 ---
 
-## 2. Install Dependencies
+## Install Dependencies
 
 Using npm
 
@@ -176,13 +209,13 @@ Using npm
 npm install
 ```
 
-Or using pnpm
+Using pnpm
 
 ```bash
 pnpm install
 ```
 
-Or using yarn
+Using yarn
 
 ```bash
 yarn
@@ -190,42 +223,32 @@ yarn
 
 ---
 
-## 3. Configure Environment Variables
+# 🔑 Environment Variables
 
-Create a `.env` file in the root directory with the following format:
+Create a `.env.local`
 
 ```env
-# GEMINI API Key
-GEMINI_API_KEY="ENTER_YOUR_GEMINI_API_KEY"
+# Gemini
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 
-# Supabase Credentials
-VITE_SUPABASE_URL="ENTER_YOUR_SUPABASE_URL"
-VITE_SUPABASE_ANON_KEY="ENTER_YOUR_SUPABASE_ANON_KEY"
-NEXT_PUBLIC_SUPABASE_URL="ENTER_YOUR_SUPABASE_URL"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="ENTER_YOUR_SUPABASE_ANON_KEY"
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_KEY
 
-# Google OAuth 2.0 Client ID
-VITE_GOOGLE_CLIENT_ID="ENTER_YOUR_GOOGLE_CLIENT_ID"
-NEXT_PUBLIC_GOOGLE_CLIENT_ID="ENTER_YOUR_GOOGLE_CLIENT_ID"
+# Google OAuth
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=YOUR_CLIENT_ID
 
-# Automation Webhook Endpoint URL for Campaign Activation
-WEBHOOK_URL="ENTER_YOUR_WEBHOOK_URL"
-VITE_WEBHOOK_URL="ENTER_YOUR_WEBHOOK_URL"
-NEXT_PUBLIC_WEBHOOK_URL="ENTER_YOUR_WEBHOOK_URL"
+# Webhooks
+NEXT_PUBLIC_WEBHOOK_URL=YOUR_WEBHOOK
+LEGAL_MAIL_WEBHOOK_URL=YOUR_LEGAL_WEBHOOK
 
-# Legal Mail Webhook Endpoint URL
-LEGAL_MAIL_WEBHOOK_URL="ENTER_YOUR_LEGAL_MAIL_WEBHOOK_URL"
-VITE_LEGAL_MAIL_WEBHOOK_URL="ENTER_YOUR_LEGAL_MAIL_WEBHOOK_URL"
-
-# Application Hosting URL
-APP_URL="ENTER_YOUR_APP_URL"
+# App
+APP_URL=http://localhost:3000
 ```
-
-Update the values according to your setup.
 
 ---
 
-## 4. Run Development Server
+# ▶️ Run Locally
 
 ```bash
 npm run dev
@@ -239,7 +262,7 @@ http://localhost:3000
 
 ---
 
-## 5. Build for Production
+# 📦 Production
 
 ```bash
 npm run build
@@ -251,18 +274,19 @@ npm start
 
 # 📂 Project Structure
 
-```
-Legal-Assister/
+```text
+Legal-Assister
 │
-├── app/
-├── components/
-├── public/
-│   ├── home.png
-│   ├── form.png
-│   ├── preview.png
-│   └── success.png
-├── lib/
-├── styles/
+├── app
+├── components
+├── lib
+├── public
+│   ├── project1.png
+│   ├── project2.png
+│   ├── project3.png
+│   └── project4.png
+│
+├── styles
 ├── .env.local
 ├── package.json
 └── README.md
@@ -270,35 +294,63 @@ Legal-Assister/
 
 ---
 
-# Workflow Setup
+# 🔄 Workflow
 
-1. Create an n8n workflow.
-2. Add a Webhook node.
-3. Receive complaint details from the frontend.
-4. Generate a formatted complaint document.
-5. Convert the complaint into a PDF.
-6. Determine the appropriate legal authority.
-7. Send an email containing the complaint PDF.
-8. Return a success response to the frontend.
-9. Deploy the frontend to Vercel (or any preferred hosting provider).
-10. Connect the frontend POST request to the n8n webhook.
+```text
+User Opens Website
+        │
+        ▼
+Describe Legal Issue
+        │
+        ▼
+AI Collects Details
+        │
+        ▼
+Review Complaint
+        │
+        ▼
+Submit Complaint
+        │
+        ▼
+POST → n8n Webhook
+        │
+        ▼
+Generate PDF
+        │
+        ▼
+Identify Authority
+        │
+        ▼
+Send Email
+        │
+        ▼
+Success Response
+```
 
 ---
 
-# Use Cases
+# 💼 Use Cases
 
-Legal Assister can help users file complaints regarding:
+- Consumer Fraud
+- Hospital Overcharging
+- Hidden Charges
+- Billing Disputes
+- Vendor Malpractice
+- Refund Issues
+- Warranty Claims
+- Digital Payment Fraud
+- Product Defects
+- Consumer Rights Violations
 
-- Consumer fraud
-- Hospital overcharging
-- Hidden service charges
-- Vendor malpractice
-- Defective products
-- Refund disputes
-- Warranty violations
-- Billing disputes
-- Digital payment fraud
-- Other consumer rights violations
+---
+
+# 🌍 Deployment
+
+<p align="center">
+
+![Render](https://img.shields.io/badge/Hosted%20on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)
+
+</p>
 
 ---
 
@@ -309,31 +361,29 @@ Contributions are welcome!
 ```bash
 # Fork the repository
 
-# Create a feature branch
-
 git checkout -b feature/amazing-feature
 
-# Commit your changes
-
 git commit -m "Add amazing feature"
-
-# Push your branch
 
 git push origin feature/amazing-feature
 ```
 
-Then open a Pull Request.
+Open a Pull Request.
 
 ---
 
-# License
+# 📜 License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
 
 ---
-
-
 
 # ⚖️ Protect. Report. Generate. Submit.
 
-**Legal Assister** transforms complex consumer complaint procedures into a streamlined, AI-assisted workflow, enabling individuals to seek justice against unfair corporate practices with confidence.
+<p align="center">
+
+**Legal Assister transforms complex consumer complaint procedures into a streamlined AI-powered workflow, enabling individuals to seek justice with confidence.**
+
+⭐ If you like this project, don't forget to star the repository!
+
+</p>
