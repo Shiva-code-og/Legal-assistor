@@ -121,25 +121,25 @@ Whether the issue is unfair vendor practices, excessive hospital billing, consum
 
 ### Home Page
 
-*(Add Screenshot Here)*
+![Home Page](assets/project1.png)
 
 ---
 
 ### Complaint Form
 
-*(Add Screenshot Here)*
+![Complaint Form](assets/project2.png)
 
 ---
 
 ### Complaint Preview
 
-*(Add Screenshot Here)*
+![Complaint Preview](assets/project3.png)
 
 ---
 
 ### Successful Submission
 
-*(Add Screenshot Here)*
+![Successful Submission](assets/project4.png)
 
 ---
 
@@ -192,21 +192,33 @@ yarn
 
 ## 3. Configure Environment Variables
 
-Create a `.env.local`
+Create a `.env` file in the root directory with the following format:
 
 ```env
-# n8n Webhook
+# GEMINI API Key
+GEMINI_API_KEY="ENTER_YOUR_GEMINI_API_KEY"
 
-NEXT_PUBLIC_N8N_WEBHOOK_URL=your_webhook_url
+# Supabase Credentials
+VITE_SUPABASE_URL="ENTER_YOUR_SUPABASE_URL"
+VITE_SUPABASE_ANON_KEY="ENTER_YOUR_SUPABASE_ANON_KEY"
+NEXT_PUBLIC_SUPABASE_URL="ENTER_YOUR_SUPABASE_URL"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="ENTER_YOUR_SUPABASE_ANON_KEY"
 
-# Gmail API
+# Google OAuth 2.0 Client ID
+VITE_GOOGLE_CLIENT_ID="ENTER_YOUR_GOOGLE_CLIENT_ID"
+NEXT_PUBLIC_GOOGLE_CLIENT_ID="ENTER_YOUR_GOOGLE_CLIENT_ID"
 
-GMAIL_CLIENT_ID=your_client_id
-GMAIL_CLIENT_SECRET=your_client_secret
+# Automation Webhook Endpoint URL for Campaign Activation
+WEBHOOK_URL="ENTER_YOUR_WEBHOOK_URL"
+VITE_WEBHOOK_URL="ENTER_YOUR_WEBHOOK_URL"
+NEXT_PUBLIC_WEBHOOK_URL="ENTER_YOUR_WEBHOOK_URL"
 
-# Optional AI API
+# Legal Mail Webhook Endpoint URL
+LEGAL_MAIL_WEBHOOK_URL="ENTER_YOUR_LEGAL_MAIL_WEBHOOK_URL"
+VITE_LEGAL_MAIL_WEBHOOK_URL="ENTER_YOUR_LEGAL_MAIL_WEBHOOK_URL"
 
-GROQ_API_KEY=your_groq_api_key
+# Application Hosting URL
+APP_URL="ENTER_YOUR_APP_URL"
 ```
 
 Update the values according to your setup.
@@ -320,11 +332,7 @@ This project is licensed under the MIT License.
 
 ---
 
-# Achievement 🏆
 
-Empowering citizens through accessible legal technology by simplifying complaint filing and automating communication with the appropriate authorities.
-
----
 
 # ⚖️ Protect. Report. Generate. Submit.
 

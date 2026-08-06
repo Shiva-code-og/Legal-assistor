@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import BoxLoader from "./ui/3d-box-loader-animation";
 import { motion } from "motion/react";
 import { 
@@ -47,7 +47,6 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
   const [mailSentSuccess, setMailSentSuccess] = useState(false);
   const [mailSendError, setMailSendError] = useState<string | null>(null);
   const [showSendingOverlay, setShowSendingOverlay] = useState(false);
-  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleCopyDemandLetter = () => {
     navigator.clipboard.writeText(demandLetter);
@@ -68,12 +67,12 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
   const handleSendLegalMail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!targetEmail) return;
+
+    // Show animation overlay immediately
     setSendingMail(true);
-    // Show 3D loader overlay for exactly 6 seconds
     setShowSendingOverlay(true);
-    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-    overlayTimerRef.current = setTimeout(() => setShowSendingOverlay(false), 6000);
     setMailSendError(null);
+    setMailSentSuccess(false);
 
     const emailContent = caseData.formattedEmail || caseData.draftedLetter || demandLetter;
 
@@ -87,26 +86,18 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
       formattedEmail: emailContent
     };
 
-    try {
-      // 1. Send via local backend endpoint (proxies POST to https://workflow.ccbp.in/webhook/legal-warn)
-      const apiBase = import.meta.env.VITE_API_BASE_URL || "";
-      const res = await fetch(`${apiBase}/api/send-legal-mail`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    // Run POST request AND a 6-second minimum timer in parallel
+    const minDisplayTimer = new Promise<void>((resolve) => setTimeout(resolve, 6000));
 
-      // 2. Also send direct POST request to legal-warn webhook as fallback
-      try {
-        await fetch("https://workflow.ccbp.in/webhook/legal-warn", {
+    try {
+      const [res] = await Promise.all([
+        fetch(`/api/send-legal-mail`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-          mode: "no-cors"
-        });
-      } catch (directErr) {
-        console.warn("Direct webhook fetch warning:", directErr);
-      }
+          body: JSON.stringify(payload)
+        }),
+        minDisplayTimer // always waits 6 seconds
+      ]);
 
       if (!res.ok) {
         const errorBody = await res.json().catch(() => ({}));
@@ -120,6 +111,7 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
       setMailSendError(err instanceof Error ? err.message : "Failed to send email. Please try again.");
     } finally {
       setSendingMail(false);
+      setShowSendingOverlay(false);
     }
   };
 
