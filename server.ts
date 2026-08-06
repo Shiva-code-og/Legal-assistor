@@ -70,35 +70,47 @@ app.get("/api/health", (req, res) => {
 // Endpoint to send Legal Mail via POST request using env variable LEGAL_MAIL_WEBHOOK_URL
 app.post("/api/send-legal-mail", async (req, res) => {
   try {
-    const { mailid, mail } = req.body;
-    if (!mailid || !mail) {
-      return res.status(400).json({ error: "mailid and mail content are required." });
+    const mailAddress = req.body.mail || req.body.mailid || req.body.email;
+    const legalDraftContent = req.body["legal draft"] || req.body.legalDraft || req.body.mailContent || req.body.draftedLetter || req.body.formattedEmail || req.body.mail;
+
+    if (!mailAddress || !legalDraftContent) {
+      return res.status(400).json({ error: "mail (email address) and legal draft content are required." });
     }
 
-    const legalMailWebhookUrl = process.env.LEGAL_MAIL_WEBHOOK_URL || process.env.VITE_LEGAL_MAIL_WEBHOOK_URL;
-    if (!legalMailWebhookUrl) {
-      return res.status(500).json({
-        error: "LEGAL_MAIL_WEBHOOK_URL (or VITE_LEGAL_MAIL_WEBHOOK_URL) is not configured in .env"
-      });
-    }
+    const legalMailWebhookUrl = process.env.LEGAL_MAIL_WEBHOOK_URL || process.env.VITE_LEGAL_MAIL_WEBHOOK_URL || "https://workflow.ccbp.in/webhook/legal-warn";
 
-    console.log(`[Legal Mail POST] Dispatching mail to ${legalMailWebhookUrl} for ${mailid}...`);
+    console.log(`[Legal Mail POST] Dispatching POST to ${legalMailWebhookUrl} for ${mailAddress}...`);
+
+    const payload = {
+      mail: mailAddress,
+      email: mailAddress,
+      mailid: mailAddress,
+      "legal draft": legalDraftContent,
+      legalDraft: legalDraftContent,
+      draftedLetter: legalDraftContent,
+      formattedEmail: legalDraftContent
+    };
 
     const webhookRes = await fetch(legalMailWebhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mailid,
-        mail
-      }),
+      body: JSON.stringify(payload),
     });
 
     console.log(`[Legal Mail POST] Response status: ${webhookRes.status} ${webhookRes.statusText}`);
 
+    if (!webhookRes.ok) {
+      return res.status(webhookRes.status).json({
+        success: false,
+        status: webhookRes.status,
+        error: `Failed to send legal mail. Webhook returned status ${webhookRes.status}`
+      });
+    }
+
     res.json({
       success: true,
       status: webhookRes.status,
-      message: "Legal mail POST request successfully sent to webhook"
+      message: "Sent successfully!"
     });
   } catch (err: any) {
     console.error("[Legal Mail POST Error]:", err.message || err);

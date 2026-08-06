@@ -70,16 +70,34 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
     const emailContent = caseData.formattedEmail || caseData.draftedLetter || demandLetter;
 
     const payload = {
+      mail: targetEmail,
+      email: targetEmail,
       mailid: targetEmail,
-      mail: emailContent
+      "legal draft": emailContent,
+      legalDraft: emailContent,
+      draftedLetter: emailContent,
+      formattedEmail: emailContent
     };
 
     try {
+      // 1. Send via local backend endpoint (proxies POST to https://workflow.ccbp.in/webhook/legal-warn)
       const res = await fetch("/api/send-legal-mail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
+
+      // 2. Also send direct POST request to legal-warn webhook as fallback
+      try {
+        await fetch("https://workflow.ccbp.in/webhook/legal-warn", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          mode: "no-cors"
+        });
+      } catch (directErr) {
+        console.warn("Direct webhook fetch warning:", directErr);
+      }
 
       if (!res.ok) {
         const errorBody = await res.json().catch(() => ({}));
@@ -87,10 +105,10 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
       }
 
       setMailSentSuccess(true);
-      setTimeout(() => setMailSentSuccess(false), 4000);
+      setTimeout(() => setMailSentSuccess(false), 5000);
     } catch (err) {
       console.error("Legal mail submission error:", err);
-      setMailSendError(err instanceof Error ? err.message : "Unable to send email.");
+      setMailSendError(err instanceof Error ? err.message : "Failed to send email. Please try again.");
     } finally {
       setSendingMail(false);
     }
@@ -329,7 +347,7 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
               className="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center space-x-2"
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Email successfully sent to <strong>{targetEmail}</strong>.</span>
+              <span><strong>Sent successfully!</strong> Email delivered to <strong>{targetEmail}</strong>.</span>
             </motion.div>
           )}
 
