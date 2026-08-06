@@ -16,30 +16,31 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  */
 export async function upsertUserProfile(user: UserProfile) {
   try {
+    const payload = {
+      email: user.email,
+      full_name: user.name,
+      avatar_url: user.picture || null,
+      phone: user.phone || null,
+      address: user.address || null,
+      webhook_url: user.webhookUrl,
+      updated_at: new Date().toISOString(),
+    };
+
+    console.log("Syncing profile to Supabase...", payload);
+
     const { data, error } = await supabase
       .from("profiles")
-      .upsert(
-        {
-          email: user.email,
-          full_name: user.name,
-          avatar_url: user.picture || null,
-          phone: user.phone || null,
-          address: user.address || null,
-          webhook_url: user.webhookUrl,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "email" }
-      )
+      .upsert(payload, { onConflict: "email" })
       .select();
 
     if (error) {
-      console.warn("Supabase upsert profile notice:", error.message);
+      console.error("Supabase upsert profile error:", error);
     } else {
       console.log("User profile synchronized with Supabase:", data);
     }
     return data;
   } catch (err) {
-    console.warn("Failed to sync profile to Supabase:", err);
+    console.error("Failed to sync profile to Supabase:", err);
     return null;
   }
 }
@@ -49,47 +50,48 @@ export async function upsertUserProfile(user: UserProfile) {
  */
 export async function saveCaseToSupabase(caseData: CaseData, userEmail?: string) {
   try {
+    const payload = {
+      case_id: caseData.caseId,
+      user_email: userEmail || null,
+      case_type: caseData.caseType,
+      zip_code: caseData.zipCode,
+      country: caseData.country || "US",
+      state: caseData.state || null,
+      district: caseData.district || null,
+      problem_description: caseData.problemDescription,
+      document_text: caseData.documentText || null,
+      summary: caseData.summary,
+      disputed_amount: caseData.disputedAmount,
+      estimated_recovery: caseData.estimatedRecovery,
+      confidence: caseData.confidence,
+      case_strength: caseData.caseStrength,
+      status: caseData.status || "Draft",
+      activated_at: caseData.activatedAt || null,
+      line_items: caseData.lineItems,
+      legal_findings: caseData.legalFindings,
+      complaint_payload: caseData.complaintPayload,
+      battle_card: caseData.battleCard,
+      demand_letter: caseData.demandLetter,
+      drafted_letter: caseData.draftedLetter || null,
+      formatted_email: caseData.formattedEmail || null,
+      updated_at: new Date().toISOString(),
+    };
+
+    console.log("Saving case to Supabase...", payload);
+
     const { data, error } = await supabase
       .from("cases")
-      .upsert(
-        {
-          case_id: caseData.caseId,
-          user_email: userEmail || null,
-          case_type: caseData.caseType,
-          zip_code: caseData.zipCode,
-          country: caseData.country || "US",
-          state: caseData.state || null,
-          district: caseData.district || null,
-          problem_description: caseData.problemDescription,
-          document_text: caseData.documentText || null,
-          summary: caseData.summary,
-          disputed_amount: caseData.disputedAmount,
-          estimated_recovery: caseData.estimatedRecovery,
-          confidence: caseData.confidence,
-          case_strength: caseData.caseStrength,
-          status: caseData.status || "Draft",
-          activated_at: caseData.activatedAt || null,
-          line_items: caseData.lineItems,
-          legal_findings: caseData.legalFindings,
-          complaint_payload: caseData.complaintPayload,
-          battle_card: caseData.battleCard,
-          demand_letter: caseData.demandLetter,
-          drafted_letter: caseData.draftedLetter || null,
-          formatted_email: caseData.formattedEmail || null,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "case_id" }
-      )
+      .upsert(payload, { onConflict: "case_id" })
       .select();
 
     if (error) {
-      console.warn("Supabase save case notice:", error.message);
+      console.error("Supabase save case error:", error);
     } else {
-      console.log("Case saved to Supabase:", data);
+      console.log("Case saved to Supabase successfully:", data);
     }
     return data;
   } catch (err) {
-    console.warn("Failed to save case to Supabase:", err);
+    console.error("Failed to save case to Supabase:", err);
     return null;
   }
 }
@@ -105,7 +107,7 @@ export async function fetchUserCasesFromSupabase(userEmail?: string): Promise<Ca
     }
     const { data, error } = await query;
     if (error) {
-      console.warn("Supabase fetch cases notice:", error.message);
+      console.error("Supabase fetch cases error:", error);
       return null;
     }
     if (data && data.length > 0) {
@@ -137,7 +139,7 @@ export async function fetchUserCasesFromSupabase(userEmail?: string): Promise<Ca
     }
     return null;
   } catch (err) {
-    console.warn("Failed to fetch cases from Supabase:", err);
+    console.error("Failed to fetch cases from Supabase:", err);
     return null;
   }
 }
