@@ -20,7 +20,7 @@ export default function App() {
   const [user, setUser] = useState<UserProfile>({
     name: "Alex Morgan",
     email: "alex.morgan@consumer.org",
-    webhookUrl: "https://workflow.ccbp.in/webhook-test/activate-campaign"
+    webhookUrl: "https://workflow.ccbp.in/webhook/activate-campaign"
   });
 
   const sampleCases: CaseData[] = [

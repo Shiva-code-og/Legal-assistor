@@ -80,14 +80,25 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
         setWebhookPayloadJson(JSON.stringify(immediateWebhookPayload, null, 2));
         setWebhookDispatched(true);
 
+        let dispatchedDraftedLetter = "";
+        let dispatchedFormattedEmail = "";
+
         // Fire the webhook POST to the backend proxy endpoint immediately
         try {
-          await fetch("/api/webhook-dispatch", {
+          const dispatchRes = await fetch("/api/webhook-dispatch", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(immediateWebhookPayload),
           });
-          setWebhookStatus("sent");
+
+          if (dispatchRes.ok) {
+            const dispatchData = await dispatchRes.json().catch(() => null);
+            dispatchedDraftedLetter = dispatchData?.draftedLetter || "";
+            dispatchedFormattedEmail = dispatchData?.formattedEmail || "";
+            setWebhookStatus("sent");
+          } else {
+            setWebhookStatus("error");
+          }
         } catch {
           setWebhookStatus("error");
         }
@@ -111,6 +122,14 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data.error || "Failed to analyze case.");
+        }
+
+        // Prefer webhook-dispatch drafted content when available.
+        if (dispatchedDraftedLetter && dispatchedDraftedLetter.trim().length > 0) {
+          data.draftedLetter = dispatchedDraftedLetter;
+        }
+        if (dispatchedFormattedEmail && dispatchedFormattedEmail.trim().length > 0) {
+          data.formattedEmail = dispatchedFormattedEmail;
         }
 
         // Update the webhook payload display with the full server response payload
@@ -226,7 +245,7 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
               <div>
                 <h3 className="font-bold text-sm text-white">Webhook POST Request Dispatched</h3>
                 <p className="text-[11px] text-slate-400 font-mono">
-                  POST → https://workflow.ccbp.in/webhook-test/activate-campaign
+                  POST  https://workflow.ccbp.in/webhook/activate-campaign
                 </p>
               </div>
             </div>
@@ -287,7 +306,7 @@ export function AiAnalysisPipeline({ payload, onComplete, onError }: AiAnalysisP
               <div className={webhookStatus === "sent" ? "text-emerald-400" : "text-amber-400"}>
                 {webhookStatus === "sent" ? "HTTP/1.1 200 OK" : webhookStatus === "error" ? "Error (CORS/Network — server-side dispatch succeeded)" : "Awaiting response..."}
               </div>
-              <div>Endpoint: https://workflow.ccbp.in/webhook-test/activate-campaign</div>
+              <div>Endpoint: https://workflow.ccbp.in/webhook/activate-campaign</div>
               <div>Status: {webhookStatus === "sent" ? "Success — Payload delivered" : webhookStatus === "error" ? "Client dispatch failed, server-side dispatch active" : "Pending..."}</div>
               <div>Dispatched At: {new Date().toISOString()}</div>
             </div>

@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
@@ -17,9 +18,92 @@ function getGeminiClient() {
   return new GoogleGenAI({ apiKey });
 }
 
+function extractDraftedMailText(rawText: string): string {
+  if (!rawText || rawText.trim().length === 0) return "";
+
+  try {
+    const parsed = JSON.parse(rawText);
+    const queue: any[] = [parsed];
+    const candidateKeys = [
+      "draftedLetter",
+      "drafted_letter",
+      "draftedMail",
+      "drafted_mail",
+      "mail",
+      "email",
+      "formattedEmail",
+      "letter",
+      "response",
+      "message",
+      "demandLetter"
+    ];
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (!current || typeof current !== "object") continue;
+
+      for (const key of candidateKeys) {
+        const value = (current as Record<string, unknown>)[key];
+        if (typeof value === "string" && value.trim().length > 0) {
+          return value;
+        }
+      }
+
+      for (const nested of Object.values(current)) {
+        if (nested && typeof nested === "object") {
+          queue.push(nested);
+        }
+      }
+    }
+  } catch {
+    // Non-JSON response body; handle as plain text below.
+  }
+
+  return rawText.trim();
+}
+
 // API Health
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Endpoint to send Legal Mail via POST request using env variable LEGAL_MAIL_WEBHOOK_URL
+app.post("/api/send-legal-mail", async (req, res) => {
+  try {
+    const { mailid, mail } = req.body;
+    if (!mailid || !mail) {
+      return res.status(400).json({ error: "mailid and mail content are required." });
+    }
+
+    const legalMailWebhookUrl = process.env.LEGAL_MAIL_WEBHOOK_URL || process.env.VITE_LEGAL_MAIL_WEBHOOK_URL;
+    if (!legalMailWebhookUrl) {
+      return res.status(500).json({
+        error: "LEGAL_MAIL_WEBHOOK_URL (or VITE_LEGAL_MAIL_WEBHOOK_URL) is not configured in .env"
+      });
+    }
+
+    console.log(`[Legal Mail POST] Dispatching mail to ${legalMailWebhookUrl} for ${mailid}...`);
+
+    const webhookRes = await fetch(legalMailWebhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mailid,
+        mail
+      }),
+    });
+
+    console.log(`[Legal Mail POST] Response status: ${webhookRes.status} ${webhookRes.statusText}`);
+
+    res.json({
+      success: true,
+      status: webhookRes.status,
+      message: "Legal mail POST request successfully sent to webhook"
+    });
+  } catch (err: any) {
+    console.error("[Legal Mail POST Error]:", err.message || err);
+    res.status(500).json({ error: err.message || "Failed to send legal mail POST request" });
+  }
 });
 
 // Helper function to format draftedLetter into email via Gemini API
@@ -65,7 +149,7 @@ Return ONLY the formatted email content ready to be copied or sent.`;
 // Immediate Webhook Dispatch - fires as soon as user clicks "Submit & Run AI Analysis"
 app.post("/api/webhook-dispatch", async (req, res) => {
   try {
-    const webhookUrl = process.env.WEBHOOK_URL || process.env.VITE_WEBHOOK_URL || "https://workflow.ccbp.in/webhook-test/activate-campaign";
+    const webhookUrl = process.env.WEBHOOK_URL || process.env.VITE_WEBHOOK_URL || "https://workflow.ccbp.in/webhook/activate-campaign";
     console.log(`[Immediate Webhook] Dispatching POST to ${webhookUrl} on user click...`);
     
     let webhookDraftedLetter = "";
@@ -79,12 +163,7 @@ app.post("/api/webhook-dispatch", async (req, res) => {
       });
       webhookStatus = webhookRes.status;
       const resText = await webhookRes.text();
-      try {
-        const jsonRes = JSON.parse(resText);
-        webhookDraftedLetter = jsonRes.draftedLetter || jsonRes.letter || jsonRes.response || jsonRes.message || jsonRes.demandLetter || "";
-      } catch {
-        webhookDraftedLetter = resText;
-      }
+      webhookDraftedLetter = extractDraftedMailText(resText);
     } catch (whErr: any) {
       console.warn("[Immediate Webhook] Webhook fetch error:", whErr.message || whErr);
     }
@@ -281,7 +360,7 @@ Return a valid JSON object matching this exact structure:
     };
 
     // Read Webhook URL from environment variable (.env)
-    const webhookUrl = process.env.WEBHOOK_URL || process.env.VITE_WEBHOOK_URL || "https://workflow.ccbp.in/webhook-test/activate-campaign";
+    const webhookUrl = process.env.WEBHOOK_URL || process.env.VITE_WEBHOOK_URL || "https://workflow.ccbp.in/webhook/activate-campaign";
 
     // Send webhook post request upon user submit & AI analysis execution
     let webhookDraftedLetter = "";
@@ -294,12 +373,7 @@ Return a valid JSON object matching this exact structure:
       });
       console.log(`[Webhook Response] Status: ${webhookRes.status} ${webhookRes.statusText}`);
       const resText = await webhookRes.text();
-      try {
-        const jsonRes = JSON.parse(resText);
-        webhookDraftedLetter = jsonRes.draftedLetter || jsonRes.letter || jsonRes.response || jsonRes.message || "";
-      } catch {
-        webhookDraftedLetter = resText;
-      }
+      webhookDraftedLetter = extractDraftedMailText(resText);
     } catch (webhookErr: any) {
       console.error("[Webhook Error] POST request failed:", webhookErr.message || webhookErr);
     }
@@ -313,6 +387,7 @@ Return a valid JSON object matching this exact structure:
 
     res.json({
       success: true,
+      ...analysisResult,
       caseId,
       createdAt,
       caseType,
@@ -324,7 +399,6 @@ Return a valid JSON object matching this exact structure:
       documentText: ocrExtractedText,
       draftedLetter,
       formattedEmail,
-      ...analysisResult,
       webhookPayload
     });
   } catch (error: any) {

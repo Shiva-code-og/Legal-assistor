@@ -43,6 +43,7 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
   const [targetEmail, setTargetEmail] = useState("");
   const [sendingMail, setSendingMail] = useState(false);
   const [mailSentSuccess, setMailSentSuccess] = useState(false);
+  const [mailSendError, setMailSendError] = useState<string | null>(null);
 
   const handleCopyDemandLetter = () => {
     navigator.clipboard.writeText(demandLetter);
@@ -60,39 +61,36 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
     document.body.removeChild(element);
   };
 
-  const handleSendDomiMail = async (e: React.FormEvent) => {
+  const handleSendLegalMail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!targetEmail) return;
     setSendingMail(true);
+    setMailSendError(null);
 
-    const domiMailPayload = {
-      recipientEmail: targetEmail,
-      to: targetEmail,
-      subject: `FORMAL LEGAL NOTICE OF DISPUTE - ${caseData.caseType.toUpperCase()} [CASE ID: ${caseData.caseId}]`,
-      formattedEmail: caseData.formattedEmail || caseData.draftedLetter || demandLetter,
-      draftedLetter: caseData.draftedLetter || demandLetter,
-      caseId: caseData.caseId,
-      disputeType: caseData.caseType,
-      user: {
-        name: user.name,
-        email: user.email
-      },
-      timestamp: new Date().toISOString()
+    const emailContent = caseData.formattedEmail || caseData.draftedLetter || demandLetter;
+
+    const payload = {
+      mailid: targetEmail,
+      mail: emailContent
     };
 
     try {
-      await fetch("https://workflow.ccbp.in/webhook-test/domimail", {
+      const res = await fetch("/api/send-legal-mail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(domiMailPayload),
-        mode: "no-cors"
+        body: JSON.stringify(payload)
       });
+
+      if (!res.ok) {
+        const errorBody = await res.json().catch(() => ({}));
+        throw new Error(errorBody.error || "Failed to send legal email.");
+      }
+
       setMailSentSuccess(true);
       setTimeout(() => setMailSentSuccess(false), 4000);
     } catch (err) {
-      console.error("DomiMail submission error:", err);
-      setMailSentSuccess(true);
-      setTimeout(() => setMailSentSuccess(false), 4000);
+      console.error("Legal mail submission error:", err);
+      setMailSendError(err instanceof Error ? err.message : "Unable to send email.");
     } finally {
       setSendingMail(false);
     }
@@ -102,7 +100,7 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
     if (!approved) return;
     setSubmitting(true);
 
-    const webhookUrl = localStorage.getItem("aegis_webhook") || "https://workflow.ccbp.in/webhook-test/activate-campaign";
+    const webhookUrl = localStorage.getItem("aegis_webhook") || "https://workflow.ccbp.in/webhook/activate-campaign";
 
     const payload = {
       "Select Dispute Type": caseData.caseType,
@@ -284,12 +282,12 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
           </div>
         </div>
 
-        {/* Send Email Form (POST to https://workflow.ccbp.in/webhook-test/domimail) */}
+        {/* Send Email Form */}
         <div className="p-6 bg-slate-100 border-t border-slate-200">
           <span className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
-            Send Formatted Legal Email via Domimail
+            Send Formatted Legal Email
           </span>
-          <form onSubmit={handleSendDomiMail} className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
+          <form onSubmit={handleSendLegalMail} className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
             <div className="relative flex-1">
               <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
               <input
@@ -331,7 +329,18 @@ export function ResultPage({ caseData, user, onBack, onCampaignActivated }: Resu
               className="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center space-x-2"
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Email successfully sent to <strong>{targetEmail}</strong> via POST request to <strong>https://workflow.ccbp.in/webhook-test/domimail</strong>!</span>
+              <span>Email successfully sent to <strong>{targetEmail}</strong>.</span>
+            </motion.div>
+          )}
+
+          {mailSendError && (
+            <motion.div
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center space-x-2"
+            >
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{mailSendError}</span>
             </motion.div>
           )}
         </div>

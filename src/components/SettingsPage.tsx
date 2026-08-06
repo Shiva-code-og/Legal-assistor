@@ -9,7 +9,7 @@ interface SettingsPageProps {
 
 export function SettingsPage({ user, onUpdateUser }: SettingsPageProps) {
   const [webhookUrl, setWebhookUrl] = useState(
-    user.webhookUrl || process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://workflow.ccbp.in/webhook-test/activate-campaign"
+    user.webhookUrl || process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://workflow.ccbp.in/webhook/activate-campaign"
   );
   const [saved, setSaved] = useState(false);
 

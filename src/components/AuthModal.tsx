@@ -27,7 +27,7 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
     onLogin({
       name: name || "Alex Morgan",
       email: email || "alex.morgan@consumer.org",
-      webhookUrl: localStorage.getItem("aegis_webhook") || "https://workflow.ccbp.in/webhook-test/activate-campaign"
+      webhookUrl: localStorage.getItem("aegis_webhook") || "https://workflow.ccbp.in/webhook/activate-campaign"
     });
     onClose();
   };
