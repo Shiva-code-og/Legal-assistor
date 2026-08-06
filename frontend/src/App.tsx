@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { LandingPage } from "./components/LandingPage";
 import { AuthModal } from "./components/AuthModal";
 import { Sidebar, ActiveTab } from "./components/Sidebar";
@@ -12,7 +12,7 @@ import { DocumentsPage } from "./components/DocumentsPage";
 import { SettingsPage } from "./components/SettingsPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { CaseData, UserProfile, DisputeType } from "./types";
-import { upsertUserProfile, saveCaseToSupabase, fetchUserCasesFromSupabase, supabase } from "./lib/supabase";
+import { upsertUserProfile, saveCaseToSupabase, fetchUserCasesFromSupabase } from "./lib/supabase";
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,35 +24,7 @@ export default function App() {
     webhookUrl: "https://workflow.ccbp.in/webhook/activate-campaign"
   });
 
-  useEffect(() => {
-    // 1. Check for existing active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && session.user) {
-        setUser({
-          name: session.user.user_metadata.full_name || session.user.email || "User",
-          email: session.user.email || "",
-          webhookUrl: localStorage.getItem("la_webhook") || "https://workflow.ccbp.in/webhook/activate-campaign"
-        });
-        setIsAuthenticated(true);
-      }
-    });
 
-    // 2. Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session && session.user) {
-        setUser({
-          name: session.user.user_metadata.full_name || session.user.email || "User",
-          email: session.user.email || "",
-          webhookUrl: localStorage.getItem("la_webhook") || "https://workflow.ccbp.in/webhook/activate-campaign"
-        });
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const sampleCases: CaseData[] = [
     {
@@ -219,10 +191,7 @@ export default function App() {
           if (tab !== "result") setSelectedCase(null);
         }}
         user={user}
-        onLogout={async () => {
-          await supabase.auth.signOut();
-          setIsAuthenticated(false);
-        }}
+        onLogout={() => setIsAuthenticated(false)}
       />
 
       {/* Main Content Area */}
