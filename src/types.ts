@@ -68,4 +68,6 @@ export interface UserProfile {
   phone?: string;
   address?: string;
   webhookUrl: string;
+  picture?: string;
+  avatarUrl?: string;
 }
