@@ -1,21 +1,21 @@
-import type { IncomingMessage, ServerResponse } from "http";
-
-type VercelRequest = IncomingMessage & { body: any; query: Record<string, string> };
-type VercelResponse = ServerResponse & {
-  json: (data: any) => VercelResponse;
-  status: (code: number) => VercelResponse;
-  end: (data?: any) => void;
-};
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
     const mailAddress = req.body?.mail || req.body?.mailid || req.body?.email;
-    const legalDraftContent = req.body?.["legal draft"] || req.body?.legalDraft || req.body?.mailContent || req.body?.draftedLetter || req.body?.formattedEmail || req.body?.mail;
+    const legalDraftContent =
+      req.body?.["legal draft"] ||
+      req.body?.legalDraft ||
+      req.body?.mailContent ||
+      req.body?.draftedLetter ||
+      req.body?.formattedEmail ||
+      req.body?.mail;
 
     if (!mailAddress || !legalDraftContent) {
       return res.status(400).json({ error: "mail (email address) and legal draft content are required." });

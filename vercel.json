@@ -1,9 +1,12 @@
 {
-  "buildCommand": "vite build -c configuration/vite.config.ts",
+  "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist",
   "framework": null,
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/analyze", "dest": "/api/analyze.ts" },
+    { "src": "/api/webhook-dispatch", "dest": "/api/webhook-dispatch.ts" },
+    { "src": "/api/send-legal-mail", "dest": "/api/send-legal-mail.ts" },
+    { "src": "/api/health", "dest": "/api/health.ts" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

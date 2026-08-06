@@ -1,17 +1,10 @@
-import type { IncomingMessage, ServerResponse } from "http";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { GoogleGenAI } from "@google/genai";
-
-type VercelRequest = IncomingMessage & { body: any; query: Record<string, string> };
-type VercelResponse = ServerResponse & {
-  json: (data: any) => VercelResponse;
-  status: (code: number) => VercelResponse;
-  end: (data?: any) => void;
-};
 
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "YOUR_GEMINI_API_KEY") {
-    throw new Error("GEMINI_API_KEY is not configured.");
+    throw new Error("GEMINI_API_KEY is not configured. Please set a valid key in Vercel environment variables.");
   }
   return new GoogleGenAI({ apiKey });
 }
@@ -37,7 +30,7 @@ function extractDraftedMailText(rawText: string): string {
       }
     }
   } catch {
-    // plain text
+    // plain text response
   }
   return rawText.trim();
 }
@@ -67,7 +60,7 @@ Return ONLY the formatted email content ready to be copied or sent.`;
     const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
     if (response.text && response.text.trim().length > 0) return response.text;
   } catch (err: any) {
-    console.warn("Gemini API email formatting notice:", err.message);
+    console.warn("Gemini API email formatting fallback:", err.message);
   }
   return `SUBJECT: FORMAL LEGAL NOTICE OF DISPUTE - ${caseType.toUpperCase()}\n\nTO: ${recipient}\n\nDear Respondent,\n\n${draftedLetter}\n\nPlease take notice that full restitution of the disputed amount is requested within fourteen (14) business days of this email.\n\nSincerely,\nAegis Legal Representative on behalf of Consumer`;
 }
@@ -108,22 +101,12 @@ Return a valid JSON object matching this exact structure:
   "confidence": 92,
   "caseStrength": "Strong",
   "lineItems": [
-    {
-      "description": "Unlawful damage deduction / fee",
-      "amount": "$450.00",
-      "reason": "Exceeds statutory limit under state civil code",
-      "flag": "High Risk"
-    }
+    { "description": "Unlawful damage deduction / fee", "amount": "$450.00", "reason": "Exceeds statutory limit under state civil code", "flag": "High Risk" }
   ],
   "legalFindings": [
-    {
-      "statute": "Civil Code Sec. 1950.5",
-      "explanation": "Landlord failed to provide itemized statement within 21 days.",
-      "confidence": "95%",
-      "potentialRemedy": "Full refund plus 2x statutory damages for bad faith."
-    }
+    { "statute": "Civil Code Sec. 1950.5", "explanation": "Landlord failed to provide itemized statement within 21 days.", "confidence": "95%", "potentialRemedy": "Full refund plus 2x statutory damages for bad faith." }
   ],
-  "demandLetter": "FORMAL DEMAND FOR RETURN OF FUNDS AND STATUTORY DAMAGES\\n\\n[Date]\\n\\nTo [Company/Respondent],\\n\\nNotice is hereby given that...",
+  "demandLetter": "FORMAL DEMAND...",
   "complaintPayload": {
     "agency": "Consumer Financial Protection Bureau / State Attorney General / FTC",
     "violationCode": "FCRA / FTC Act Sec 5 / State Consumer Protection Act",
@@ -131,15 +114,9 @@ Return a valid JSON object matching this exact structure:
     "reliefSought": "Full refund of disputed charges and penalty fees."
   },
   "battleCard": [
-    {
-      "representativeSays": "'Our fees are standard and non-refundable per our terms of service.'",
-      "suggestedResponse": "'Mandatory arbitration clauses cannot override statutory consumer protection laws or deceptive trade practices statutes.'",
-      "supportingLegalReference": "FTC Act Section 5; State Unfair Business Practices Act",
-      "negotiationTip": "Remain calm and authoritative. Demand escalation to supervisor or legal compliance department."
-    }
+    { "representativeSays": "'Our fees are standard.'", "suggestedResponse": "'Policy cannot override consumer protection statutes.'", "supportingLegalReference": "FTC Act Section 5", "negotiationTip": "Remain calm and authoritative." }
   ]
-}
-`;
+}`;
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
@@ -150,7 +127,7 @@ Return a valid JSON object matching this exact structure:
       const text = response.text;
       if (text) analysisResult = JSON.parse(text);
     } catch (aiErr: any) {
-      console.warn("Gemini API call failed, falling back to simulation:", aiErr.message);
+      console.warn("Gemini API call failed, using fallback:", aiErr.message);
     }
 
     if (!analysisResult) {
@@ -183,35 +160,23 @@ Return a valid JSON object matching this exact structure:
 
     const ocrExtractedText = documentText && documentText.trim().length > 0
       ? documentText
-      : `[OCR Compulsory Extracted Text from Uploaded Document]\nDispute Category: ${caseType}\nJurisdiction: ${district || "Mumbai"}, ${state || "Maharashtra"}, ${country || "India"} [ZIP/PIN: ${zipCode || "400001"}]\nExtracted Content: Itemized dispute charges and contractual terms parsed via Aegis OCR engine.`;
+      : `[OCR Extracted Text]\nDispute Category: ${caseType}\nJurisdiction: ${district || "Mumbai"}, ${state || "Maharashtra"}, ${country || "India"} [ZIP/PIN: ${zipCode || "400001"}]\nExtracted Content: Itemized dispute charges and contractual terms parsed via Aegis OCR engine.`;
 
     const caseId = "AEGIS-" + Math.floor(100000 + Math.random() * 900000);
     const createdAt = new Date().toISOString();
 
     const webhookPayload = {
-      "Select Dispute Type": caseType,
-      "disputeType": caseType,
-      "uploadedDocumentOcrText": ocrExtractedText,
-      "extractedDocumentText": ocrExtractedText,
-      "Country": country || "India",
-      "State": state || "Maharashtra",
-      "District": district || "Mumbai",
-      "ZIP / PIN Code": zipCode || "400001",
-      "zipCode": zipCode || "400001",
-      "Grievance Description": problemDescription,
-      "problemDescription": problemDescription,
-      "caseId": caseId,
-      "createdAt": createdAt,
-      "summary": analysisResult.summary,
-      "disputedAmount": analysisResult.disputedAmount,
-      "estimatedRecovery": analysisResult.estimatedRecovery,
-      "confidence": analysisResult.confidence,
-      "caseStrength": analysisResult.caseStrength,
-      "lineItems": analysisResult.lineItems,
-      "legalFindings": analysisResult.legalFindings,
-      "demandLetter": analysisResult.demandLetter,
-      "complaintPayload": analysisResult.complaintPayload,
-      "battleCard": analysisResult.battleCard
+      "Select Dispute Type": caseType, "disputeType": caseType,
+      "uploadedDocumentOcrText": ocrExtractedText, "extractedDocumentText": ocrExtractedText,
+      "Country": country || "India", "State": state || "Maharashtra",
+      "District": district || "Mumbai", "ZIP / PIN Code": zipCode || "400001",
+      "zipCode": zipCode || "400001", "Grievance Description": problemDescription,
+      "problemDescription": problemDescription, "caseId": caseId, "createdAt": createdAt,
+      "summary": analysisResult.summary, "disputedAmount": analysisResult.disputedAmount,
+      "estimatedRecovery": analysisResult.estimatedRecovery, "confidence": analysisResult.confidence,
+      "caseStrength": analysisResult.caseStrength, "lineItems": analysisResult.lineItems,
+      "legalFindings": analysisResult.legalFindings, "demandLetter": analysisResult.demandLetter,
+      "complaintPayload": analysisResult.complaintPayload, "battleCard": analysisResult.battleCard
     };
 
     const webhookUrl = process.env.WEBHOOK_URL || "https://workflow.ccbp.in/webhook/activate-campaign";
@@ -237,10 +202,7 @@ Return a valid JSON object matching this exact structure:
     return res.status(200).json({
       success: true,
       ...analysisResult,
-      caseId,
-      createdAt,
-      caseType,
-      zipCode,
+      caseId, createdAt, caseType, zipCode,
       country: country || "India",
       state: state || "Maharashtra",
       district: district || "Mumbai",

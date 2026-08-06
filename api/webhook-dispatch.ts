@@ -1,13 +1,5 @@
-import type { IncomingMessage, ServerResponse } from "http";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { GoogleGenAI } from "@google/genai";
-
-type VercelRequest = IncomingMessage & { body: any; query: Record<string, string> };
-type VercelResponse = ServerResponse & {
-  json: (data: any) => VercelResponse;
-  status: (code: number) => VercelResponse;
-  end: (data?: any) => void;
-};
-
 
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -68,7 +60,7 @@ Return ONLY the formatted email content ready to be copied or sent.`;
     const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
     if (response.text && response.text.trim().length > 0) return response.text;
   } catch (err: any) {
-    console.warn("Gemini API email formatting notice:", err.message);
+    console.warn("Gemini email formatting fallback:", err.message);
   }
   return `SUBJECT: FORMAL LEGAL NOTICE OF DISPUTE - ${caseType.toUpperCase()}\n\nTO: ${recipient}\n\nDear Respondent,\n\n${draftedLetter}\n\nPlease take notice that full restitution of the disputed amount is requested within fourteen (14) business days of this email.\n\nSincerely,\nAegis Legal Representative on behalf of Consumer`;
 }
