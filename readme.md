@@ -24,7 +24,7 @@ AI-powered legal complaint assistant that helps consumers generate, format, and 
 
 - **@merakstack**
 - **@shiva-code-og**
-- **sreeshanth1224**
+- **@sreeshanth1224**
 - **@navaneesh**
 
 ---
